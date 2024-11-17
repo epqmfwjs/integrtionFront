@@ -1,0 +1,98 @@
+.touch-controls {
+  position: fixed;
+  inset: 0;         /* 전체 화면 영역 차지 */
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  z-index: 1000;
+}
+
+.direction-pad {
+  position: fixed;
+  left: 50px;
+  bottom: 50px;
+  width: 180px;
+  height: 180px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  pointer-events: auto;
+}
+
+.direction-btn {
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.direction-btn:active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.direction-btn.up { 
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.direction-btn.left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.direction-btn.down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.direction-btn.right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.action-buttons {
+  position: fixed;
+  right: 50px;
+  bottom: 50px;
+  display: flex;
+  gap: 20px;
+  pointer-events: auto;
+}
+
+.control-btn {
+  width: 80px;
+  height: 80px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.control-btn:active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.control-btn.jump {
+  background: rgba(100, 200, 255, 0.3);
+}
+
+.control-btn.run {
+  background: rgba(255, 100, 100, 0.3);
+}

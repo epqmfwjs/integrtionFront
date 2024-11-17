@@ -1,0 +1,41 @@
+/* src/App.css */
+.App {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+@media screen and (orientation: portrait) {
+  .orientation-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    font-size: 24px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .App > *:not(.orientation-message) {
+    display: none;
+  }
+}
+
+@media screen and (orientation: landscape) {
+  .orientation-message {
+    display: none;
+  }
+}
