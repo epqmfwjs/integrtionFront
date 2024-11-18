@@ -1,5 +1,5 @@
-// src/hooks/useKeyboardControls.js
-import { useState, useEffect } from 'react';
+// useKeyboardControls.js
+import { useState, useEffect, useRef } from 'react';
 import { getChatting } from '../state/chatState';
 
 export const useKeyboardControls = () => {
@@ -10,26 +10,22 @@ export const useKeyboardControls = () => {
     right: false,
     jump: false,
     run: false,
+    kick: false,
   });
 
-  // 마지막 업데이트 시간 추적
-  let lastUpdate = 0;
-  const THROTTLE_TIME = 16; // 약 60fps에 해당 (1000ms / 60)
+  // 상태 추적용 ref 추가
+  const lastUpdateRef = useRef(0);
+  const lastKickTimeRef = useRef(0);
+  const THROTTLE_TIME = 16;
+  const KICK_COOLDOWN = 1000;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // 채팅 모드일 때는 이동 키 무시
       if (getChatting()) return;
 
-      // 현재 시간 확인
       const now = performance.now();
-      
-      // 마지막 업데이트로부터 충분한 시간이 지났는지 확인
-      if (now - lastUpdate < THROTTLE_TIME) {
-        return;
-      }
-      
-      lastUpdate = now;
+      if (now - lastUpdateRef.current < THROTTLE_TIME) return;
+      lastUpdateRef.current = now;
 
       switch (e.code) {
         case 'KeyW':
@@ -45,11 +41,23 @@ export const useKeyboardControls = () => {
           setMovement(m => ({ ...m, right: true }));
           break;
         case 'Space':
-          e.preventDefault(); // 스페이스바로 인한 스크롤 방지
+          e.preventDefault();
           setMovement(m => ({ ...m, jump: true }));
           break;
         case 'ShiftLeft':
           setMovement(m => ({ ...m, run: true }));
+          break;
+        case 'KeyF':
+          const currentTime = performance.now();
+          if (currentTime - lastKickTimeRef.current >= KICK_COOLDOWN) {
+            setMovement(m => ({ ...m, kick: true }));
+            lastKickTimeRef.current = currentTime;
+            
+            // 발차기 상태 자동 해제
+            setTimeout(() => {
+              setMovement(m => ({ ...m, kick: false }));
+            }, 500);
+          }
           break;
         default:
           break;
@@ -57,7 +65,6 @@ export const useKeyboardControls = () => {
     };
 
     const handleKeyUp = (e) => {
-      // 채팅 모드일 때는 이동 키 무시
       if (getChatting()) return;
       
       switch (e.code) {

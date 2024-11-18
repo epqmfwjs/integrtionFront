@@ -41,12 +41,6 @@ const RoundedRectangle = ({ width, height, radius }) => {
 const ChatBubble = ({ message, position, height }) => {
   const [visible, setVisible] = useState(false);
   const [scale, setScale] = useState(0);
-  console.log('채팅 메시지:', message);
-  console.log('ChatBubble 받은 데이터:', {
-    message,
-    position,
-    height
-  });
   useEffect(() => {
     // 메시지가 변경될 때마다 새로운 타이머 설정
     if (!message) {

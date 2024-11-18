@@ -8,21 +8,12 @@ export const OtherPlayer = ({
   currentAnimation = 'Stop', 
   rotation = 0,
   modelPath,
-  chatMessage  // 채팅 메시지 prop 추가
+  chatMessage
 }) => {
   const group = useRef();
   const { scene, animations } = useGLTF(modelPath);
   const { actions } = useAnimations(animations, group);
   const [currentAnim, setCurrentAnim] = useState('Stop');
-
-  console.log('OtherPlayer 받은 데이터:', {
-    nickname,
-    chatMessage,
-    modelPath,
-    position
-  });
-
-
 
   // 캐릭터별 오프셋 설정
   const MODEL_OFFSETS = {

@@ -15,6 +15,8 @@ import { OtherPlayer } from './OtherPlayer';
 import axios from '../util/axiosConfig';
 import ChatBubble from './ChatBubble';
 import ChatInterface from './ChatInterface';
+import {  Debug } from '@react-three/rapier';
+import { GridHelper } from 'three';
 
 // 닉네임 텍스트 컴포넌트
 const NicknameText = ({ nickname, position }) => {
@@ -166,7 +168,7 @@ export const MetaverseScene = () => {
             client.subscribe('/topic/chat', message => {
               try {
                 const chatMessage = JSON.parse(message.body);
-                console.log('받은 채팅 메시지:', chatMessage);
+                //console.log('받은 채팅 메시지:', chatMessage);
 
                 if (chatMessage.nickname !== data.nickname) {
                   // 채팅 메시지 임시 저장
@@ -177,7 +179,7 @@ export const MetaverseScene = () => {
 
                   setOtherPlayers(prev => {
                     const playerData = prev[chatMessage.nickname];
-                    console.log('채팅 업데이트 전 플레이어 데이터:', playerData);
+                    //console.log('채팅 업데이트 전 플레이어 데이터:', playerData);
                     
                     if (playerData) {
                       return {
@@ -346,16 +348,8 @@ export const MetaverseScene = () => {
             height={3.2}
           />
           
-          {Object.entries(otherPlayers).map(([playerNickname, data]) => {
-            console.log('렌더링 데이터:', {
-              nickname: playerNickname,
-              chatMessage: data.chatMessage,
-              messageTimestamp: data.messageTimestamp,
-              position: data.position,
-              fullData: data
-            });
-
-            return data?.position && (
+          {Object.entries(otherPlayers).map(([playerNickname, data]) => (
+            data?.position && (
               <group key={`${playerNickname}-${data.messageTimestamp || ''}`}>
                 <OtherPlayer
                   position={data.position}
@@ -367,8 +361,8 @@ export const MetaverseScene = () => {
                   messageTimestamp={data.messageTimestamp}
                 />
               </group>
-            );
-          })}
+            )
+            ))}
         </Physics>
         <ThirdPersonCamera target={position} />
       </Canvas>

@@ -136,7 +136,31 @@ function NicknameForm() {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* 3D 효과를 위한 원소 추가 */}
+      {/* 배경 텍스트 */}
+      <div style={{
+        position: 'absolute',
+        width: '100%',
+        height: '40%',
+        top: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden'
+      }}>
+        <h1 style={{
+          fontSize: '70px',
+          fontWeight: 'bold',
+          color: 'rgba(255, 255, 255, 0.3)',
+          whiteSpace: 'nowrap',
+          animation: 'textAnimation 20s linear infinite',
+          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(255, 255, 255, 0.5)', // 두께감을 위한 그림자 효과
+          letterSpacing: '1px'
+        }}>
+          Hello! It's Gwanghyun World! 😊
+        </h1>
+      </div>
+  
+      {/* 3D 효과 원소 */}
       <div style={{
         position: 'absolute',
         top: '50%',
@@ -150,6 +174,7 @@ function NicknameForm() {
         zIndex: 0
       }}></div>
   
+      {/* 폼 컨테이너 */}
       <div style={{
         width: '100%',
         maxWidth: '400px',

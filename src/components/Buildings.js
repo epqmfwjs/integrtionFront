@@ -5,6 +5,8 @@ import { useThree, useLoader } from '@react-three/fiber';
 import { TextureLoader, RepeatWrapping, PointLight, MeshStandardMaterial, SpotLight } from 'three';
 import { Text } from '@react-three/drei'; // Text 컴포넌트 추가
 import { Modal } from './Modal';
+import { SoccerBall } from './SoccerBall';
+import { Campfire } from './Campfire';
 
 export const Buildings = ({ characterPosition }) => {  // characterPosition prop 추가
   const { gl } = useThree();
@@ -204,17 +206,6 @@ export const Buildings = ({ characterPosition }) => {  // characterPosition prop
           />
         </mesh>
       </RigidBody>
-
-
-      {/* 바닥 장식용 골드 라인 */}
-      <mesh position={[0, 0.12, 0]} rotation={[0, Math.PI / 4, 0]}>
-        <boxGeometry args={[70, 0.01, 0.5]} />
-        <meshStandardMaterial color="#FFD700" metalness={0.8} roughness={0.2} />
-      </mesh>
-      <mesh position={[0, 0.12, 0]} rotation={[0, -Math.PI / 4, 0]}>
-        <boxGeometry args={[70, 0.01, 0.5]} />
-        <meshStandardMaterial color="#FFD700" metalness={0.8} roughness={0.2} />
-      </mesh>
 
       {/* 외벽 */}
       <RigidBody type="fixed" colliders="cuboid">
@@ -653,6 +644,12 @@ export const Buildings = ({ characterPosition }) => {  // characterPosition prop
 
       {/* 환경광 추가 */}
       <ambientLight intensity={0.6} />
+
+      {/* 축구공 추가 */}
+      <SoccerBall position={[5, 1, 5]} />
+
+      {/* 캠프파이어 추가 */}
+      <Campfire position={[-40, 0.2, 40]} />
     </group>
   );
 };
