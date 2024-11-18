@@ -70,7 +70,7 @@ const fetchPlayerData = async () => {
   try {
     const nickname = localStorage.getItem('nickname');
     if (!nickname) {
-      navigate('/');
+      window.location.href = '/';
       return null;
     }
 
@@ -78,9 +78,7 @@ const fetchPlayerData = async () => {
       params: { nickname }
     });
 
-    console.log('API Response:', response.data); // 응답 데이터 확인
     if (response?.data) {
-      console.log('Setting player data:', response.data); // playerData 설정 확인
       setPlayerData(response.data);
       localStorage.removeItem('nickname');
       return response.data;

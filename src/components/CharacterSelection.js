@@ -230,7 +230,7 @@ const CharacterSelection = ({ onSelect }) => {
             fontSize: styles.headerSize,
             fontWeight: 'bold', 
             marginBottom: '1rem',
-            marginTop: '5rem',
+            marginTop: '2rem',
             color: '#ffffff', 
             textShadow: '0 0 12px rgba(0, 123, 255, 0.8)' 
           }}>
@@ -238,7 +238,7 @@ const CharacterSelection = ({ onSelect }) => {
           </h2>
           <p style={{ 
             color: '#cccccc',
-            marginBottom: '3em',
+            marginBottom: '2em',
             fontSize: styles.fontSize,
           }}>
             마음에 드는 캐릭터를 선택하세요. 마우스로 드래그하여 캐릭터를 회전할 수 있습니다.
