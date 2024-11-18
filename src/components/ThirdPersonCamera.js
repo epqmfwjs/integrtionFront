@@ -25,7 +25,7 @@ export const ThirdPersonCamera = ({ target }) => {
   const cameraSettings = {
     minDistance: isMobile ? 4 : 2,          // 모바일일 때 최소 거리 증가
     maxDistance: isMobile ? 15 : 10,        // 모바일일 때 최대 거리 증가
-    defaultDistance: isMobile ? 10 : 7,      // 모바일일 때 기본 거리 증가
+    defaultDistance: isMobile ? 7 : 7,      // 모바일일 때 기본 거리 증가
     height: isMobile ? 6 : 5,              // 모바일일 때 높이 증가
     rotationSpeed: 0.003,    // 수평 회전 속도
     verticalRotationSpeed: 0.003, // 수직 회전 속도
