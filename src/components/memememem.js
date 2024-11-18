@@ -1,4 +1,3 @@
-// src/components/MetaverseScene.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Sky, Text, Billboard } from '@react-three/drei';
@@ -13,13 +12,16 @@ import { useNavigate } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import { OtherPlayer } from './OtherPlayer';
+import axios from '../util/axiosConfig';
+import ChatBubble from './ChatBubble';
+//import ChatInterface from './ChatInterface';
 
 // 닉네임 텍스트 컴포넌트
-const NicknameText = ({ position, rotation }) => {
-  const nickname = localStorage.getItem('nickname');
+const NicknameText = ({ nickname, position }) => {
+  if (!nickname) return null;
   
   return (
-    <group position={[position[0], position[1] + 2.3, position[2]]}>
+    <group position={[position[0], position[1] + 3.2, position[2]]}>
       <Billboard
         follow={true}
         lockX={true}
@@ -27,24 +29,14 @@ const NicknameText = ({ position, rotation }) => {
         lockZ={true}
         position={[0, 0, 0]}
       >
-        {/* 메인 배경 */}
         <mesh position={[0, 0, -0.01]}>
           <planeGeometry args={[0.8, 0.15]} />
-          <meshBasicMaterial 
-            color="white" 
-            opacity={0.8} 
-            transparent
-          />
+          <meshBasicMaterial color="white" opacity={0.8} transparent />
         </mesh>
         
-        {/* 테두리 효과 (선택사항) */}
         <mesh position={[0, 0, -0.02]}>
           <planeGeometry args={[0.85, 0.20]} />
-          <meshBasicMaterial 
-            color="black" 
-            opacity={0.2} 
-            transparent
-          />
+          <meshBasicMaterial color="black" opacity={0.2} transparent />
         </mesh>
 
         <Text
@@ -65,99 +57,160 @@ export const MetaverseScene = () => {
   const [position, setPosition] = useState([0, 5, 0]);
   const [isMobile, setIsMobile] = useState(false);
   const [otherPlayers, setOtherPlayers] = useState({});
+  const [playerData, setPlayerData] = useState(null);
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
   const navigate = useNavigate();
   const stompClientRef = useRef(null);
   const isConnecting = useRef(false);
   const [currentCharacterAnimation, setCurrentCharacterAnimation] = useState('Stop');
   const [currentRotation, setCurrentRotation] = useState(0);
 
-  useEffect(() => {
-    //console.log('Current otherPlayers:', otherPlayers);
-  }, [otherPlayers]);
+  // 플레이어 데이터 가져오기
+  const fetchPlayerData = async () => {
+    try {
+      const nickname = localStorage.getItem('nickname');
+      if (!nickname) {
+        navigate('/');
+        return null;
+      }
 
-// WebSocket 연결 함수
-const connectWebSocket = async () => {
-  if (isConnecting.current || stompClientRef.current?.connected) return;
-  
-  isConnecting.current = true;
-  const nickname = localStorage.getItem('nickname');
-  
-  console.log('Connecting with nickname:', nickname);
-  
-  try {
-    const socket = new SockJS('http://localhost:5000/ws');
-    //const socket = new SockJS(`http://gogolckh.ddns.net:10/ws`);
-    const client = Stomp.over(socket);
+      const response = await axios.get('/api/member/me', {
+        params: { nickname }
+      });
 
-    // STOMP 디버그 설정
-    client.debug = () => {};
+      if (response?.data) {
+        setPlayerData(response.data);
+        localStorage.removeItem('nickname');
+        return response.data;
+      }
+      
+      throw new Error('No data received');
 
-    await new Promise((resolve, reject) => {
-      client.connect(
-        {},
-        () => {
-          console.log('WebSocket Connected');
-          stompClientRef.current = client;
-          
-          // 다른 플레이어들의 위치 정보 구독
-          client.subscribe('/topic/players', message => {
-            try {
-              const positions = JSON.parse(message.body);
-              const currentNickname = localStorage.getItem('nickname');
-              
-              // 다른 플레이어들의 데이터만 필터링
-              const filteredPositions = Object.fromEntries(
-                Object.entries(positions).filter(([key]) => key !== currentNickname)
-              );
-              
-              // prev 상태를 유지하지 않고 새로운 상태로 완전히 교체
-              setOtherPlayers(filteredPositions); // 이전: ...prev를 사용하지 않음
-            } catch (error) {
-              console.error('Error processing message:', error);
-            }
-          });
-
-          // 입장 메시지 전송
-          const joinMessage = {
-            nickname: nickname,
-            position: position
-          };
-          console.log('Sending join message:', joinMessage);
-          client.send('/app/join', {}, JSON.stringify(joinMessage));
-
-          resolve();
-        },
-        error => {
-          console.error('STOMP connection error:', error);
-          reject(error);
-        }
-      );
-    });
-  } catch (error) {
-    console.error('Failed to connect:', error);
-  } finally {
-    isConnecting.current = false;
-  }
-};
-
-  // 초기 연결 및 정리
-  useEffect(() => {
-    const nickname = localStorage.getItem('nickname');
-    if (!nickname) {
-      navigate('/');
-      return;
+    } catch (error) {
+      console.error('API Error:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('nickname');
+        navigate('/');
+      }
+      return null;
     }
+  };
 
+  // 채팅 메시지 전송
+  const sendChat = (message) => {
+    if (stompClientRef.current?.connected && playerData) {
+      const chatData = {
+        nickname: playerData.nickname,
+        message: message,
+        timestamp: new Date().getTime()
+      };
+      
+      stompClientRef.current.send('/app/chat', {}, JSON.stringify(chatData));
+      
+      // 로컬 채팅 히스토리 업데이트
+      setChatHistory(prev => [...prev, { ...chatData, isSelf: true }]);
+      setChatMessage(message);
+    }
+  };
+
+  // WebSocket 연결 함수
+  const connectWebSocket = async (data) => {
+    if (isConnecting.current || stompClientRef.current?.connected) return;
+    isConnecting.current = true;
+    
+    try {
+      const socket = new SockJS('http://localhost:5000/ws');
+      //const socket = new SockJS('http://gogolckh.ddns.net:10/ws');
+      const client = Stomp.over(socket);
+      client.debug = () => {};
+
+      await new Promise((resolve, reject) => {
+        client.connect(
+          {},
+          () => {
+            console.log('WebSocket Connected');
+            stompClientRef.current = client;
+            
+            // 플레이어 위치 구독
+            client.subscribe('/topic/players', message => {
+              try {
+                const positions = JSON.parse(message.body);
+                const filteredPositions = Object.fromEntries(
+                  Object.entries(positions).filter(([key]) => key !== data.nickname)
+                );
+                setOtherPlayers(filteredPositions);
+              } catch (error) {
+                console.error('Error processing message:', error);
+              }
+            });
+
+            // 채팅 메시지 구독
+            client.subscribe('/topic/chat', message => {
+              try {
+                const chatMessage = JSON.parse(message.body);
+                console.log('수신된 채팅 메시지:', chatMessage);
+                
+                if (chatMessage.nickname !== data.nickname) {
+                  setOtherPlayers(prev => {
+                    console.log('이전 상태:', prev);
+                    const updatedPlayers = {
+                      ...prev,
+                      [chatMessage.nickname]: {
+                        ...prev[chatMessage.nickname],
+                        chatMessage: chatMessage.message,
+                        messageTimestamp: new Date().getTime()
+                      }
+                    };
+                    console.log('업데이트된 상태:', updatedPlayers);
+                    return updatedPlayers;
+                  });
+                  
+                  // 채팅 히스토리에 추가
+                  setChatHistory(prev => [...prev, { ...chatMessage, isSelf: false }]);
+                }
+              } catch (error) {
+                console.error('Error processing chat message:', error);
+              }
+            });
+
+            const joinMessage = {
+              nickname: data.nickname,
+              position: position,
+              characterId: data.characterId,
+              modelPath: data.modelPath
+            };
+            client.send('/app/join', {}, JSON.stringify(joinMessage));
+            resolve();
+          },
+          error => {
+            console.error('STOMP connection error:', error);
+            reject(error);
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Failed to connect:', error);
+    } finally {
+      isConnecting.current = false;
+    }
+  };
+
+  // 초기 연결 및 데이터 로드
+  useEffect(() => {
     let mounted = true;
 
-    const initConnection = async () => {
+    const initScene = async () => {
       if (mounted) {
-        await connectWebSocket();
+        const data = await fetchPlayerData();
+        if (data) {
+          await connectWebSocket(data);
+        }
       }
     };
 
-    initConnection();
-
+    initScene();
+    
     // 모바일 기기 감지
     const checkMobile = () => {
       if (mounted) {
@@ -168,26 +221,24 @@ const connectWebSocket = async () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
-    // 정리 함수
     return () => {
       mounted = false;
       
       const cleanup = async () => {
-        if (stompClientRef.current?.connected) {
+        if (stompClientRef.current?.connected && playerData) {
           try {
             const client = stompClientRef.current;
             
-            // 퇴장 메시지 전송
             await new Promise((resolve) => {
               client.send('/app/leave', {}, JSON.stringify({
-                nickname: nickname,
+                nickname: playerData.nickname,
                 position: position
               }));
               resolve();
             });
 
-            // 구독 해제
             if (client.connected) {
+              localStorage.removeItem('nickname');
               client.disconnect();
             }
             
@@ -205,21 +256,20 @@ const connectWebSocket = async () => {
 
   // 위치 업데이트 처리
   useEffect(() => {
-    if (!stompClientRef.current?.connected) return;
+    if (!stompClientRef.current?.connected || !playerData) return;
     
-    const nickname = localStorage.getItem('nickname');
-    if (!nickname) return;
-  
-    //console.log('Sending animation state:', currentCharacterAnimation); // 로그 추가
-
     stompClientRef.current.send('/app/position', {}, JSON.stringify({
-      nickname: nickname,
+      nickname: playerData.nickname,
       position: position,
-      currentAnimation: currentCharacterAnimation,  // Stop 대신 실제 애니메이션 상태 전송
-      rotation: currentRotation  // 회전 정보 추가
+      currentAnimation: currentCharacterAnimation,
+      rotation: currentRotation,
+      characterId: playerData.characterId,
+      modelPath: playerData.modelPath
     }));
   
-  }, [position, currentCharacterAnimation, currentRotation]);  // 의존성 배열에 currentCharacterAnimation 추가
+  }, [position, currentCharacterAnimation, currentRotation, playerData]);
+
+  if (!playerData) return null;
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
@@ -256,6 +306,7 @@ const connectWebSocket = async () => {
           <Character 
             position={position} 
             setPosition={setPosition}
+            modelPath={playerData.modelPath}
             onAnimationChange={(animation, rotation) => {
               setCurrentCharacterAnimation(animation);
               setCurrentRotation(rotation);
@@ -263,22 +314,45 @@ const connectWebSocket = async () => {
           />
           <Buildings characterPosition={position} />
           <Ground />
-          <NicknameText position={position} />
+          <NicknameText position={position} nickname={playerData.nickname} />
+          <ChatBubble 
+            message={chatMessage}
+            position={position}
+            height={3.2}
+          />
           
-          {Object.entries(otherPlayers).map(([playerNickname, playerData]) => (
-            playerData?.position && (
-              <OtherPlayer
-                key={playerNickname}
-                position={playerData.position}
-                nickname={playerNickname}
-                currentAnimation={playerData.currentAnimation || 'Stop'}
-                rotation={playerData.rotation || 0}  // rotation 값 전달 추가
-              />
-            )
-          ))}
+          {Object.entries(otherPlayers).map(([playerNickname, data]) => {
+            console.log('렌더링할 플레이어 데이터:', {
+              nickname: playerNickname,
+              chatMessage: data.chatMessage,
+              messageTimestamp: data.messageTimestamp,
+              fullData: data
+            });
+            
+            return data?.position && (
+              <group key={`${playerNickname}-${data.messageTimestamp || ''}`}>
+                <OtherPlayer
+                  position={data.position}
+                  nickname={playerNickname}
+                  currentAnimation={data.currentAnimation || 'Stop'}
+                  rotation={data.rotation || 0}
+                  modelPath={data.modelPath}
+                  chatMessage={data.chatMessage}
+                  key={`player-${playerNickname}-${data.messageTimestamp || ''}`}
+                />
+              </group>
+            );
+          })}
         </Physics>
         <ThirdPersonCamera target={position} />
       </Canvas>
+      
+      {/* 채팅 인터페이스 */}
+      <ChatInterface 
+        onSendMessage={sendChat}
+        chatHistory={chatHistory}
+      />
+      
       {isMobile && <TouchControls />}
     </div>
   );

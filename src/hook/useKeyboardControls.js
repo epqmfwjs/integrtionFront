@@ -1,5 +1,6 @@
 // src/hooks/useKeyboardControls.js
 import { useState, useEffect } from 'react';
+import { getChatting } from '../state/chatState';
 
 export const useKeyboardControls = () => {
   const [movement, setMovement] = useState({
@@ -17,6 +18,9 @@ export const useKeyboardControls = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // 채팅 모드일 때는 이동 키 무시
+      if (getChatting()) return;
+
       // 현재 시간 확인
       const now = performance.now();
       
@@ -41,6 +45,7 @@ export const useKeyboardControls = () => {
           setMovement(m => ({ ...m, right: true }));
           break;
         case 'Space':
+          e.preventDefault(); // 스페이스바로 인한 스크롤 방지
           setMovement(m => ({ ...m, jump: true }));
           break;
         case 'ShiftLeft':
@@ -52,6 +57,9 @@ export const useKeyboardControls = () => {
     };
 
     const handleKeyUp = (e) => {
+      // 채팅 모드일 때는 이동 키 무시
+      if (getChatting()) return;
+      
       switch (e.code) {
         case 'KeyW':
           setMovement(m => ({ ...m, forward: false }));
