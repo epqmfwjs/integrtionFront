@@ -179,8 +179,8 @@ export const MetaverseScene = () => {
           }}
         >
           {/* 성능 모니터링 컴포넌트 추가 */}
-          <Stats showPanel={0} /> {/* 0: FPS, 1: MS, 2: MB */}
-          <Perf position="top-center" />
+          {/* <Stats showPanel={0} />
+          <Perf position="top-center" /> */}
 
           <Sky />
           <ambientLight intensity={0.5} />
