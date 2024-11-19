@@ -1,10 +1,10 @@
 // frontend/src/components/world/Ground.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RigidBody } from '@react-three/rapier';
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader, RepeatWrapping } from 'three';
 
-export const Ground = () => {
+export const Ground = ({ onGroundReady }) => {
   // 텍스처 로드
   const grassTexture = useLoader(TextureLoader, '/images/grass.jpg');
   const grassNormalMap = useLoader(TextureLoader, '/images/grass_normal.jpg');
@@ -19,8 +19,23 @@ export const Ground = () => {
   grassNormalMap.repeat.set(5, 5);
   wallTexture.repeat.set(10, 1); // 벽 텍스처 반복
 
+  useEffect(() => {
+    // 그라운드가 로드되면 콜백 호출
+    if (onGroundReady) {
+      onGroundReady();
+    }
+  }, [onGroundReady]);
+
   return (
     <group>
+      {/* 추락 방지용 안전 충돌체 */}
+      <RigidBody type="fixed" colliders="cuboid">
+        <mesh position={[0, -10, 0]} visible={false}>
+          <boxGeometry args={[200, 1, 200]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+      </RigidBody>
+
       {/* 잔디 바닥 */}
       <RigidBody type="fixed" colliders="trimesh">
         <mesh 

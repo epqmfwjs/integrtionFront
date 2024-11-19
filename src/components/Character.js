@@ -1,8 +1,8 @@
 // src/components/Character.js
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
-import { useKeyboardControls } from '../hook/useKeyboardControls';
+import { useKeyboardControls } from '../hooks/useKeyboardControls';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import {  useRapier } from '@react-three/rapier';
 
@@ -250,6 +250,42 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
   });
 
   const modelOffset = MODEL_OFFSETS[modelPath] || { scale: 0.0125, height: 0.73 };
+
+  const INITIAL_SPAWN_POSITION = [0, 7, 0];
+  const FALL_THRESHOLD = -5; // 추락 임계값
+  const [isSpawning, setIsSpawning] = useState(true);
+
+  // 안전한 스폰 위치로 리셋
+  const resetToSpawnPosition = useCallback(() => {
+    if (rigidBodyRef.current) {
+      rigidBodyRef.current.setTranslation({ 
+        x: INITIAL_SPAWN_POSITION[0], 
+        y: INITIAL_SPAWN_POSITION[1], 
+        z: INITIAL_SPAWN_POSITION[2] 
+      });
+      rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 });
+      rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 });
+    }
+  }, []);
+
+  // 추락 감지 및 리스폰
+  useFrame(() => {
+    if (!rigidBodyRef.current) return;
+    
+    const currentPosition = rigidBodyRef.current.translation();
+    
+    // 추락 감지
+    if (currentPosition.y < FALL_THRESHOLD) {
+      console.log("Character fell below threshold, respawning...");
+      resetToSpawnPosition();
+    }
+
+    // 초기 스폰시 위치 설정
+    if (isSpawning) {
+      resetToSpawnPosition();
+      setIsSpawning(false);
+    }
+  });
 
   return (
     <group>
