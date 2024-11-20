@@ -65,6 +65,7 @@ export const MetaverseScene = () => {
  const [currentCharacterAnimation, setCurrentCharacterAnimation] = useState('Stop');
  const [currentRotation, setCurrentRotation] = useState(0);
  const [isGroundReady, setIsGroundReady] = useState(false);
+ const [isLoading, setIsLoading] = useState(true);
 
  // 플레이어 데이터 가져오기
  const fetchPlayerData = async () => {
@@ -76,7 +77,7 @@ export const MetaverseScene = () => {
 
      const nickname = localStorage.getItem('nickname');
      if (!nickname) {
-       navigate('/');
+        window.location.href = '/';
        return null;
      }
 
@@ -139,123 +140,170 @@ export const MetaverseScene = () => {
    }
  }, [disconnect, navigate]);
 
- // 새로고침 이벤트 핸들러
-useEffect(() => {
-  let isHandlingUnload = false;
+   // Ground가 준비되면 호출되는 핸들러
+  const handleGroundReady = useCallback(() => {
+    setIsGroundReady(true);
+  }, []);
 
-  const handleBeforeUnload = async (e) => {
-    if (isHandlingUnload) return;
-    
-    e.preventDefault();
-    
-    isHandlingUnload = true;
-
-    const result = await Swal.fire({
-      title: 'Kwanghyun Wordl 로그아웃',
-      text: '정말 떠나실껀가요 😭 ?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#fdbb2d',
-      cancelButtonColor: '#d33',
-      confirmButtonText: '네',
-      cancelButtonText: '아니오',
-      allowOutsideClick: false,
-      allowEscapeKey: false
-    });
-
-    if (result.isConfirmed) {
-      await disconnect();
-      window.location.href = '/';
+  // 로딩 상태 관리
+  useEffect(() => {
+    if (isGroundReady && playerData) {
+      console.log('Resources ready, waiting for stabilization...');
+      // 3초 딜레이 추가
+      setTimeout(() => {
+        console.log('Stabilization complete, hiding loading screen');
+        setIsLoading(false);
+      }, 3000);  // 3000ms = 3초
     }
+  }, [isGroundReady, playerData]);
+
+   // 초기 로딩 화면 표시
+   useEffect(() => {
+    let loadingAlert;
     
-    isHandlingUnload = false;
-    return false;
-  };
-
-  const handleKeyDown = async (e) => {
-    const isChatting = getChatting();
-    
-    // 채팅 중일 때는 모든 키 이벤트 무시
-    if (isChatting) {
-      return;
-    }
-
-    // F5 또는 Ctrl+R 처리
-    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-      e.preventDefault(); 
-      
-      if (!isHandlingUnload) {
-        isHandlingUnload = true;
-        
-        const result = await Swal.fire({
-          title: 'Kwanghyun Wordl 로그아웃',
-          text: '정말 떠나실껀가요 😭 ?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#fdbb2d',
-          cancelButtonColor: '#d33',
-          confirmButtonText: '네',
-          cancelButtonText: '아니오',
-          allowOutsideClick: false,
-          allowEscapeKey: false
-        });
-
-        if (result.isConfirmed) {
-          await disconnect();
-          window.location.href = '/';
+    if (isLoading) {
+      console.log('Showing loading screen');
+      loadingAlert = Swal.fire({
+        title: 'Kwanghyun World에 입장중...',
+        html: '<div style="margin: 20px 0;">잠시만 기다려주세요...</div>' +
+              '<div style="font-size: 0.8em; color: #666;">자원을 불러오는 중입니다.</div>',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
         }
-        
-        isHandlingUnload = false;
+      });
+    } else {
+      console.log('Closing loading screen');
+      Swal.close();
+    }
+  
+    return () => {
+      if (loadingAlert) {
+        console.log('Cleanup: closing loading screen');
+        Swal.close();
       }
-    }
-    // ESC 키 처리 - 채팅 중이 아닐 때만 실행
-    else if (e.key === 'Escape') {
-      e.preventDefault();
-      handleLogout();
-    }
-  };
+    };
+  }, [isLoading]);
 
-  // 브라우저 새로고침 버튼 등의 경우를 위한 기본 핸들러
-  window.addEventListener('beforeunload', (e) => {
-    if (!isHandlingUnload) {
-      e.preventDefault();
-      // 크로스 브라우저 지원을 위해 빈 문자열 반환
-      return (e.returnValue = '');
-    }
-  });
-  
-  window.addEventListener('keydown', handleKeyDown);
-  
-  return () => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-    window.removeEventListener('keydown', handleKeyDown);
-  };
-}, [disconnect, handleLogout]);
+  // 새로고침 이벤트 핸들러
+  useEffect(() => {
+    let isHandlingUnload = false;
 
-// 뒤로가기 처리
-useEffect(() => {
-  const preventBack = async (e) => {
-    // 기본 뒤로가기 동작 방지
-    e.preventDefault();
-    
-    const result = await Swal.fire({
-      title: 'Kwanghyun Wordl 로그아웃',
-      text: '정말 떠나실껀가요 😭 ?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#fdbb2d',
-      cancelButtonColor: '#d33',
-      confirmButtonText: '네',
-      cancelButtonText: '아니오',
-      allowOutsideClick: false,
-      allowEscapeKey: false
+    const handleBeforeUnload = async (e) => {
+      if (isHandlingUnload) return;
+      
+      e.preventDefault();
+      
+      isHandlingUnload = true;
+
+      const result = await Swal.fire({
+        title: 'Kwanghyun Wordl 로그아웃',
+        text: '정말 떠나실껀가요 😭 ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#fdbb2d',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '네',
+        cancelButtonText: '아니오',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      });
+
+      if (result.isConfirmed) {
+        await disconnect();
+        window.location.href = '/';
+      }
+      
+      isHandlingUnload = false;
+      return false;
+    };
+
+    const handleKeyDown = async (e) => {
+      const isChatting = getChatting();
+      
+      // 채팅 중일 때는 모든 키 이벤트 무시
+      if (isChatting) {
+        return;
+      }
+
+      // F5 또는 Ctrl+R 처리
+      if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+        e.preventDefault(); 
+        
+        if (!isHandlingUnload) {
+          isHandlingUnload = true;
+          
+          const result = await Swal.fire({
+            title: 'Kwanghyun Wordl 로그아웃',
+            text: '정말 떠나실껀가요 😭 ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#fdbb2d',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '네',
+            cancelButtonText: '아니오',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+
+          if (result.isConfirmed) {
+            await disconnect();
+            window.location.href = '/';
+          }
+          
+          isHandlingUnload = false;
+        }
+      }
+      // ESC 키 처리 - 채팅 중이 아닐 때만 실행
+      else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleLogout();
+      }
+    };
+
+    // 브라우저 새로고침 버튼 등의 경우를 위한 기본 핸들러
+    window.addEventListener('beforeunload', (e) => {
+      if (!isHandlingUnload) {
+        e.preventDefault();
+        // 크로스 브라우저 지원을 위해 빈 문자열 반환
+        return (e.returnValue = '');
+      }
     });
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [disconnect, handleLogout]);
 
-    if (result.isConfirmed) {
-      await disconnect();
-      window.location.href = '/';
-    }
-  };
+  // 뒤로가기 처리
+  useEffect(() => {
+    const preventBack = async (e) => {
+      // 기본 뒤로가기 동작 방지
+      e.preventDefault();
+      
+      const result = await Swal.fire({
+        title: 'Kwanghyun Wordl 로그아웃',
+        text: '정말 떠나실껀가요 😭 ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#fdbb2d',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '네',
+        cancelButtonText: '아니오',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      });
+
+      if (result.isConfirmed) {
+        await disconnect();
+        window.location.href = '/';
+      }
+    };
 
   // 뒤로가기 이벤트만 처리
   window.addEventListener('popstate', preventBack);
@@ -299,83 +347,85 @@ useEffect(() => {
  if (!playerData) return null;
 
  return (
-   <div style={{ width: '100vw', height: '100vh' }}>
-     <Canvas
-       gl={{ 
-         antialias: true,
-         alpha: false,
-         stencil: false,
-         depth: true
-       }}
-       camera={{
-         position: [0, 5, 10],
-         fov: 60
-       }}
-       onCreated={({ gl }) => {
-         gl.setClearColor(new Color('#87CEEB'), 1)
-       }}
-     >
-       <Sky />
-       <ambientLight intensity={0.5} />
-       <directionalLight
-         position={[10, 10, 10]}
-         castShadow
-         shadow-mapSize={[2048, 2048]}
-       />
-       <Physics
-         gravity={[0, -9.81, 0]}
-         timeStep={1/155}
-         interpolate={true}
-         maxStabilizationIterations={20}
-         maxVelocityIterations={20}
-         maxPositionIterations={20}
-       >
-         <Ground onGroundReady={() => setIsGroundReady(true)} />
-         <Buildings characterPosition={position} />
-         
-         {isGroundReady && (
-           <Character 
-             position={position} 
-             setPosition={setPosition}
-             modelPath={playerData.modelPath}
-             onAnimationChange={(animation, rotation) => {
-               setCurrentCharacterAnimation(animation);
-               setCurrentRotation(rotation);
-             }}
-           />
-         )}
-         <NicknameText position={position} nickname={playerData.nickname} />
-         <ChatBubble 
-           message={chatMessage}
-           position={position}
-           height={3.2}
-         />
-         
-         {Object.entries(otherPlayers).map(([playerNickname, data]) => (
-           data?.position && (
-             <group key={`${playerNickname}-${data.messageTimestamp || ''}`}>
-               <OtherPlayer
-                 position={data.position}
-                 nickname={playerNickname}
-                 currentAnimation={data.currentAnimation || 'Stop'}
-                 rotation={data.rotation || 0}
-                 modelPath={data.modelPath}
-                 chatMessage={data.chatMessage}
-                 messageTimestamp={data.messageTimestamp}
-               />
-             </group>
-           )
-         ))}
-       </Physics>
-       <ThirdPersonCamera target={position} />
-     </Canvas>
-     
-     <ChatInterface 
-       onSendMessage={sendChat}
-       chatHistory={chatHistory}
-     />
-     
-     {isMobile && <TouchControls />}
-   </div>
- );
+  <div style={{ width: '100vw', height: '100vh' }}>
+    <Canvas
+      gl={{ 
+        antialias: true,
+        alpha: false,
+        stencil: false,
+        depth: true
+      }}
+      camera={{
+        position: [0, 5, 10],
+        fov: 60
+      }}
+      onCreated={({ gl }) => {
+        gl.setClearColor(new Color('#87CEEB'), 1)
+      }}
+      style={{ visibility: isLoading ? 'hidden' : 'visible' }}
+    >
+      <Sky />
+      <ambientLight intensity={0.5} />
+      <directionalLight
+        position={[10, 10, 10]}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+      />
+      <Physics
+        gravity={[0, -9.81, 0]}
+        timeStep={1/155}
+        interpolate={true}
+        maxStabilizationIterations={20}
+        maxVelocityIterations={20}
+        maxPositionIterations={20}
+      >
+        <Ground onGroundReady={handleGroundReady} />
+        <Buildings characterPosition={position} />
+        
+        {isGroundReady && (
+          <Character 
+            position={position} 
+            setPosition={setPosition}
+            modelPath={playerData.modelPath}
+            onAnimationChange={(animation, rotation) => {
+              setCurrentCharacterAnimation(animation);
+              setCurrentRotation(rotation);
+            }}
+          />
+        )}
+        <NicknameText position={position} nickname={playerData.nickname} />
+        <ChatBubble 
+          message={chatMessage}
+          position={position}
+          height={3.2}
+        />
+        
+        {Object.entries(otherPlayers).map(([playerNickname, data]) => (
+          data?.position && (
+            <group key={`${playerNickname}-${data.messageTimestamp || ''}`}>
+              <OtherPlayer
+                position={data.position}
+                nickname={playerNickname}
+                currentAnimation={data.currentAnimation || 'Stop'}
+                rotation={data.rotation || 0}
+                modelPath={data.modelPath}
+                chatMessage={data.chatMessage}
+                messageTimestamp={data.messageTimestamp}
+              />
+            </group>
+          )
+        ))}
+      </Physics>
+      <ThirdPersonCamera target={position} />
+    </Canvas>
+    
+    <ChatInterface 
+      onSendMessage={sendChat}
+      chatHistory={chatHistory}
+      style={{ visibility: isLoading ? 'hidden' : 'visible' }}
+    />
+    
+    {isMobile && <TouchControls style={{ visibility: isLoading ? 'hidden' : 'visible' }} />}
+  </div>
+);
 };

@@ -22,6 +22,7 @@ export const Ground = ({ onGroundReady }) => {
   useEffect(() => {
     // 그라운드가 로드되면 콜백 호출
     if (onGroundReady) {
+      console.log('Ground textures loaded, calling onGroundReady');
       onGroundReady();
     }
   }, [onGroundReady]);
