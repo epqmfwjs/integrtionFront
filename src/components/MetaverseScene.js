@@ -73,8 +73,7 @@ export const MetaverseScene = () => {
         console.log('여기서 리다이렉트?');
         // 절대 경로로 변경
         window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
-        //navigate('/');
-        return null;
+        return Promise.resolve(null); // Promise chain 중단
       }
 
       const response = await axios.get('/api/member/me', {
@@ -105,7 +104,7 @@ export const MetaverseScene = () => {
         console.log('여기서 리다이렉트?2');
         // 절대 경로로 변경
         window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
-        //navigate('/');
+        return Promise.resolve(null); // Promise chain 중단
       }
       return null;
     }

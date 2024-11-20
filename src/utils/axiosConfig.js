@@ -15,6 +15,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401 || error.response?.status === 404) {
       // 절대 경로로 변경
       window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
+      return new Promise(() => {});
       //window.location.href = '/';
     }
     return Promise.reject(error);
