@@ -16,21 +16,25 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
   useEffect(() => {
     // 엔터키 이벤트 리스너
     const handleKeyPress = (e) => {
-      if (e.key === 'Enter' && !e.repeat) {  // repeat 체크 추가
+      if (e.key === 'Enter' && !e.repeat) {
         if (!isChatting) {
-          // 채팅 시작
           setIsChatting(true);
           e.preventDefault();
         }
       } else if (e.key === 'Escape' && isChatting) {
-        // ESC로 채팅 취소
+        e.preventDefault();
+        e.stopPropagation();
         setIsChatting(false);
         setMessage('');
+        // 이벤트 완전 중단
+        e.stopImmediatePropagation();
+        return false;
       }
     };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+  
+    // 이벤트 캡처링 페이즈에서 실행되도록 설정
+    window.addEventListener('keydown', handleKeyPress, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyPress, { capture: true });
   }, [isChatting]);
 
   useEffect(() => {
