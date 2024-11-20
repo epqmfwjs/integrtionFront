@@ -157,7 +157,7 @@ function NicknameForm() {
           textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(255, 255, 255, 0.5)', // 두께감을 위한 그림자 효과
           letterSpacing: '1px'
         }}>
-          Hello! It's Gwanghyun World! 😊
+          Hello! It's Kwanghyun World! 😊
         </h1>
       </div>
   
