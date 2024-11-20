@@ -21,8 +21,8 @@ export const useWebSocket = ({
     isConnecting.current = true;
     
     try {
-      const socket = new SockJS('http://localhost:5000/ws');
-      //const socket = new SockJS('http://gogolckh.ddns.net:10/ws');
+      //const socket = new SockJS('http://localhost:5000/ws');
+      const socket = new SockJS('http://gogolckh.ddns.net:10/ws');
       const client = Stomp.over(socket);
       client.debug = () => {};
 
