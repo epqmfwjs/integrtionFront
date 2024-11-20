@@ -71,8 +71,8 @@ export const MetaverseScene = () => {
       // nickname이 없으면 루트 경로로 리다이렉트
       if (!nickname) {
         // 절대 경로로 변경
-        window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
-        //navigate('/');
+        //window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
+        navigate('/');
         return null;
       }
 
@@ -102,8 +102,8 @@ export const MetaverseScene = () => {
       if (error.response?.status === 401 || error.response?.status === 404) {
         localStorage.removeItem('nickname');
         // 절대 경로로 변경
-        window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
-        //navigate('/');
+        //window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
+        navigate('/');
       }
       return null;
     }

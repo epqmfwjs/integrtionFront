@@ -47,18 +47,13 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
     }
   }, [chatHistory]);
 
+  // touchstart 이벤트 리스너 제거 (onClick만 사용)
   useEffect(() => {
     if (isMobile) {
-      const handleTouchStart = () => {
-        if (!isChatting) {
-          setIsChatting(true);
-        }
-      };
-
       const chatButton = document.querySelector('.chat-button');
       if (chatButton) {
-        chatButton.addEventListener('touchstart', handleTouchStart);
-        return () => chatButton.removeEventListener('touchstart', handleTouchStart);
+        // 터치 이벤트 리스너 제거
+        return () => {};
       }
     }
   }, [isMobile, isChatting]);
@@ -72,17 +67,38 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
     }
   };
 
+  const handleMobileClick = (e) => {
+    // 이벤트 전파 중지
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // 채팅 모드 토글
+    setIsChatting(prev => !prev);
+    
+    if (!isChatting) {
+      // 채팅 시작시에만 포커스
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 100);
+    } else {
+      // 채팅 모드 종료시 메시지 초기화
+      setMessage('');
+    }
+  };
+
   const styles = {
     container: {
       position: 'fixed',
       left: '50%',
       bottom: '20px',
       transform: 'translateX(-50%)',
-      width: '600px',
+      width: isMobile ? '300px' : '500px',  // 모바일일 때 width 조정
       zIndex: 1000,
     },
     chatHistory: {
-      maxHeight: '150px',
+      maxHeight: isMobile ? '60px' : '150px',  // 모바일일 때 maxHeight 조정
       overflowY: 'auto',
       marginBottom: '10px',
       padding: '10px',
@@ -134,85 +150,85 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
       transform: 'translateX(-50%)',
       color: 'rgba(255, 255, 255, 0.6)',
       fontSize: '14px',
-      display: isChatting ? 'none' : 'block',
+      display: isChatting || isMobile ? 'none' : 'block', // 모바일에서는 항상 숨김
       textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)',
       backgroundColor: 'rgba(0, 0, 0, 0.3)',
       padding: '4px 12px',
       borderRadius: '4px',
     },
-    mobileButton: {
+    mobileButtonContainer: {
       position: 'fixed',
-      top: '-100px',          // bottom -> top으로 변경
+      top: '20px',          // 상단에 고정
       right: '20px',
+      zIndex: 1001,        // 다른 요소들보다 위에 표시
+    },
+    mobileButton: {
       padding: '15px',
       borderRadius: '50%',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      backgroundColor: isChatting ? 'rgba(255, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)', // 채팅 모드일 때 색상 변경
       color: 'white',
       border: 'none',
       outline: 'none',
       cursor: 'pointer',
-      zIndex: 1000,
       fontSize: '20px',
       touchAction: 'manipulation',
       WebkitTapHighlightColor: 'transparent',
+      // 터치 관련 스타일 추가
+      WebkitUserSelect: 'none',
+      userSelect: 'none',
+      WebkitTouchCallout: 'none',
     }
   };
 
-  const handleMobileClick = () => {
-    setIsChatting(true);
-    // 약간의 지연 후 포커스 (키보드 표시 보장)
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
-  };
-
   return (
-    <div style={styles.container}>
-      <div ref={chatContainerRef} style={styles.chatHistory}>
-        {chatHistory.map((chat, index) => (
-          <div key={index} style={styles.messageContainer}>
-            <span style={styles.message}>
-              <span style={styles.nickname}>
-                {chat.isSelf ? '나' : chat.nickname}
+    <>
+      <div style={styles.container}>
+        <div ref={chatContainerRef} style={styles.chatHistory}>
+          {chatHistory.map((chat, index) => (
+            <div key={index} style={styles.messageContainer}>
+              <span style={styles.message}>
+                <span style={styles.nickname}>
+                  {chat.isSelf ? '나' : chat.nickname}
+                </span>
+                <span style={chat.isSelf ? styles.selfMessage : styles.otherMessage}>
+                  {chat.message}
+                </span>
               </span>
-              <span style={chat.isSelf ? styles.selfMessage : styles.otherMessage}>
-                {chat.message}
-              </span>
-            </span>
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      <div style={styles.inputContainer}>
-        <form onSubmit={handleSubmit}>
-          <input
-            ref={inputRef}
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            style={styles.input}
-            placeholder="메시지를 입력하세요... (ESC: 취소)"
-            maxLength={200}
-          />
-        </form>
-      </div>
+        <div style={styles.inputContainer}>
+          <form onSubmit={handleSubmit}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              style={styles.input}
+              placeholder="메시지를 입력하세요... (ESC: 취소)"
+              maxLength={200}
+            />
+          </form>
+        </div>
 
-      <div style={styles.placeholder}>
-        채팅을 하려면 Enter 키를 누르세요
+        <div style={styles.placeholder}>
+          채팅을 하려면 Enter 키를 누르세요
+        </div>
       </div>
 
       {isMobile && (
-        <button 
-          onClick={handleMobileClick}
-          style={styles.mobileButton}
-          className="chat-button"
-        >
-          💬
-        </button>
+        <div style={styles.mobileButtonContainer}>
+          <button 
+            onClick={handleMobileClick}
+            style={styles.mobileButton}
+            className="chat-button"
+          >
+            💬
+          </button>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
