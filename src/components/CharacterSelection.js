@@ -1,7 +1,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, useAnimations } from '@react-three/drei';
-import axios from '../util/axiosConfig';
+import axios from '../utils/axiosConfig';
 import { useSwipeable } from 'react-swipeable';
 
 // 중단점 설정 수정

@@ -10,7 +10,7 @@ import { Color } from 'three';
 import { TouchControls } from './TouchControls';
 import { useNavigate } from 'react-router-dom';
 import { OtherPlayer } from './OtherPlayer';
-import axios from '../util/axiosConfig';
+import axios from '../utils/axiosConfig';
 import ChatBubble from './ChatBubble';
 import ChatInterface from './ChatInterface';
 import { useWebSocket } from '../hooks/useWebSocket';
@@ -70,9 +70,10 @@ export const MetaverseScene = () => {
       const nickname = localStorage.getItem('nickname');
       // nickname이 없으면 루트 경로로 리다이렉트
       if (!nickname) {
+        console.log('여기서 리다이렉트?');
         // 절대 경로로 변경
-        //window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
-        navigate('/');
+        window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
+        //navigate('/');
         return null;
       }
 
@@ -101,9 +102,10 @@ export const MetaverseScene = () => {
       // API 에러가 401일 경우에도 '/' 경로로 리다이렉트
       if (error.response?.status === 401 || error.response?.status === 404) {
         localStorage.removeItem('nickname');
+        console.log('여기서 리다이렉트?2');
         // 절대 경로로 변경
-        //window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
-        navigate('/');
+        window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
+        //navigate('/');
       }
       return null;
     }

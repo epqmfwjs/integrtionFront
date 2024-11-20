@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'; // SweetAlert2 import
-import axios from '../util/axiosConfig';
+import axios from '../utils/axiosConfig';
 import CharacterSelection from './CharacterSelection';
 
 function NicknameForm() {
@@ -99,6 +99,7 @@ function NicknameForm() {
           confirmButtonColor: '#fdbb2d',
         }).then(() => {
           window.location.href = '/';
+          console.log('입장 준비 완료!');
         });
       } else {
         Swal.fire({
