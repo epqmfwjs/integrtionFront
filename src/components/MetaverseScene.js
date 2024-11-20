@@ -9,16 +9,10 @@ import { ThirdPersonCamera } from './ThirdPersonCamera';
 import { Color } from 'three';
 import { TouchControls } from './TouchControls';
 import { useNavigate } from 'react-router-dom';
-import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
 import { OtherPlayer } from './OtherPlayer';
 import axios from '../util/axiosConfig';
 import ChatBubble from './ChatBubble';
 import ChatInterface from './ChatInterface';
-import {  Debug } from '@react-three/rapier';
-import { GridHelper } from 'three';
-import { Stats } from '@react-three/drei';
-import { Perf } from 'r3f-perf';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 // 닉네임 텍스트 컴포넌트
@@ -66,9 +60,6 @@ export const MetaverseScene = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const navigate = useNavigate();
-  const stompClientRef = useRef(null);
-  const isConnecting = useRef(false);
-  const chatMessagesRef = useRef({});
   const [currentCharacterAnimation, setCurrentCharacterAnimation] = useState('Stop');
   const [currentRotation, setCurrentRotation] = useState(0);
   const [isGroundReady, setIsGroundReady] = useState(false);
@@ -77,14 +68,14 @@ export const MetaverseScene = () => {
   const fetchPlayerData = async () => {
     try {
       const nickname = localStorage.getItem('nickname');
-      // nickname이 없으면 '/' 경로로 리다이렉트
+      // nickname이 없으면 루트 경로로 리다이렉트
       if (!nickname) {
-        window.location.href = 'http://gogolckh.ddns.net:10/';  // navigate 대신 직접 리다이렉트
+        // 절대 경로로 변경
+        window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
         //navigate('/');
         return null;
       }
 
-      // API 엔드포인트 확인
       const response = await axios.get('/api/member/me', {
         params: { nickname }
       });
@@ -110,7 +101,8 @@ export const MetaverseScene = () => {
       // API 에러가 401일 경우에도 '/' 경로로 리다이렉트
       if (error.response?.status === 401 || error.response?.status === 404) {
         localStorage.removeItem('nickname');
-        window.location.href = 'http://gogolckh.ddns.net:10/';  // navigate 대신 직접 리다이렉트
+        // 절대 경로로 변경
+        window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
         //navigate('/');
       }
       return null;

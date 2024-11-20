@@ -6,6 +6,7 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
   const [isChatting, setIsChatting] = useState(false);
   const inputRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const [isMobile] = useState(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
 
   // 채팅 상태 변경 시 전역 상태 업데이트
   useEffect(() => {
@@ -45,6 +46,22 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
+
+  useEffect(() => {
+    if (isMobile) {
+      const handleTouchStart = () => {
+        if (!isChatting) {
+          setIsChatting(true);
+        }
+      };
+
+      const chatButton = document.querySelector('.chat-button');
+      if (chatButton) {
+        chatButton.addEventListener('touchstart', handleTouchStart);
+        return () => chatButton.removeEventListener('touchstart', handleTouchStart);
+      }
+    }
+  }, [isMobile, isChatting]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -105,6 +122,10 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
       borderRadius: '4px',
       color: 'white',
       outline: 'none',
+      // 모바일 입력 최적화
+      fontSize: isMobile ? '16px' : '14px', // 모바일에서 더 큰 폰트
+      WebkitAppearance: 'none', // iOS 스타일 제거
+      touchAction: 'manipulation', // 터치 최적화
     },
     placeholder: {
       position: 'fixed',
@@ -118,7 +139,33 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
       backgroundColor: 'rgba(0, 0, 0, 0.3)',
       padding: '4px 12px',
       borderRadius: '4px',
+    },
+    mobileButton: {
+      position: 'fixed',
+      top: '-100px',          // bottom -> top으로 변경
+      right: '20px',
+      padding: '15px',
+      borderRadius: '50%',
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      color: 'white',
+      border: 'none',
+      outline: 'none',
+      cursor: 'pointer',
+      zIndex: 1000,
+      fontSize: '20px',
+      touchAction: 'manipulation',
+      WebkitTapHighlightColor: 'transparent',
     }
+  };
+
+  const handleMobileClick = () => {
+    setIsChatting(true);
+    // 약간의 지연 후 포커스 (키보드 표시 보장)
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
   };
 
   return (
@@ -155,6 +202,16 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
       <div style={styles.placeholder}>
         채팅을 하려면 Enter 키를 누르세요
       </div>
+
+      {isMobile && (
+        <button 
+          onClick={handleMobileClick}
+          style={styles.mobileButton}
+          className="chat-button"
+        >
+          💬
+        </button>
+      )}
     </div>
   );
 };
