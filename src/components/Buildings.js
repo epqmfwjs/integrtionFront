@@ -7,6 +7,10 @@ import { Text } from '@react-three/drei'; // Text 컴포넌트 추가
 import { Modal } from './Modal';
 import { SoccerBall } from './SoccerBall';
 import { Campfire } from './Campfire';
+import { Computer } from './Computer';
+import { MP3Player } from './MP3Player';
+import { YouTubeMP3Player } from './YouTubeMP3Player';
+import { Html } from '@react-three/drei';
 
 export const Buildings = ({ characterPosition }) => {  // characterPosition prop 추가
   const { gl } = useThree();
@@ -650,6 +654,15 @@ export const Buildings = ({ characterPosition }) => {  // characterPosition prop
 
       {/* 캠프파이어 추가 */}
       <Campfire position={[-40, 0.2, 40]} />
+
+      {/* 컴퓨터 추가 */}
+      {/* <Computer position={[-5, 0.5, -5]} rotation={[0, Math.PI / 1, 0]} /> */}
+
+      {/* MP3 플레이어 추가 */}
+      {/* <MP3Player position={[-45.8, 1, 45.8]} rotation={[0, Math.PI / 1.5, 0]} /> */}
+
+      {/* YouTubeMP3Player 플레이어 추가 */}
+      <YouTubeMP3Player position={[-45.8, 1, 45.8]} rotation={[0, Math.PI / 1.5, 0]} />
     </group>
   );
 };

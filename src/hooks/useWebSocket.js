@@ -19,7 +19,7 @@ export const useWebSocket = ({
   const connectWebSocket = async (data) => {
     if (isConnecting.current || stompClientRef.current?.connected) return;
     isConnecting.current = true;
-    
+
     try {
       //const socket = new SockJS('http://localhost:5000/ws');
       const socket = new SockJS('http://gogolckh.ddns.net:10/ws');
