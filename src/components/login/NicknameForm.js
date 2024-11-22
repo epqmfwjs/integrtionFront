@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // SweetAlert2 import
-import axios from '../utils/axiosConfig';
+import Swal from 'sweetalert2'; 
+import axios from '../../utils/axiosConfig';
 import CharacterSelection from './CharacterSelection';
 
 function NicknameForm() {

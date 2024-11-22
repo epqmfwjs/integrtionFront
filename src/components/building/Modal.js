@@ -1,7 +1,7 @@
 import React from 'react';
 import { Html } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import '../styles/Modal.css';  // CSS 파일 추가
+import '../../styles/Modal.css';  // CSS 파일 추가
 export const Modal = ({ isOpen, onClose, onConfirm, projectInfo }) => {
   const { camera } = useThree();
   

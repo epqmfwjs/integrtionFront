@@ -2,7 +2,7 @@
 import React, { useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MetaverseScene } from './components/MetaverseScene';
-import NicknameForm from './components/NicknameForm';
+import NicknameForm from './components/login/NicknameForm';
 import './App.css';
 
 function App() {

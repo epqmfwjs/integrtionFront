@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import '../styles/TouchControls.css';
+import '../../styles/TouchControls.css';
 
 export const TouchControls = () => {
   const emitKey = (key, isDown) => {

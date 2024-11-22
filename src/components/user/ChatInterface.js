@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { setChatting } from '../state/chatState';
+import { setChatting } from '../../state/chatState';
 
 const ChatInterface = ({ onSendMessage, chatHistory }) => {
   const [message, setMessage] = useState('');

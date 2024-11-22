@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { RigidBody } from '@react-three/rapier';
 import { Text, Html } from '@react-three/drei';
-import { musicList } from '../data/musicList';
+import { musicList } from '../../data/musicList';
 import { useFrame } from '@react-three/fiber';
 
 // 필요한 상태만 남기고 나머지 제거

@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
-import { useKeyboardControls } from '../hooks/useKeyboardControls';
+import { useKeyboardControls } from '../../hooks/useKeyboardControls';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import {  useRapier } from '@react-three/rapier';
 
