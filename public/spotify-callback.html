@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spotify Authentication</title>
+</head>
+<body>
+  <script>
+    window.onload = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const token = hash
+          .substring(1)
+          .split('&')
+          .find(elem => elem.startsWith('access_token'))
+          ?.split('=')[1];
+
+        if (token) {
+          // 부모 창으로 토큰 전달
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: 'SPOTIFY_AUTH_SUCCESS', token: token },
+              '*'
+            );
+          }
+          // 팝업 창 닫기
+          window.close();
+        }
+      }
+    };
+  </script>
+</body>
+</html>

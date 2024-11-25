@@ -18,6 +18,7 @@
     "react-scripts": "5.0.1",
     "react-swipeable": "^7.0.2",
     "sockjs-client": "^1.6.1",
+    "spotify-web-api-js": "^1.5.2",
     "styled-components": "^6.1.13",
     "sweetalert2": "^11.14.5",
     "three": "^0.170.0",

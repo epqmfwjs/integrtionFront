@@ -373,7 +373,7 @@ export const MetaverseScene = () => {
       />
       <Physics
         gravity={[0, -9.81, 0]}
-        timeStep={1/155}
+        timeStep={1/60}
         interpolate={true}
         maxStabilizationIterations={20}
         maxVelocityIterations={20}

@@ -22,7 +22,7 @@ export const ProjectFrame = ({
     >
       {title}
     </Text>
-    
+    {/* 설명 텍스트 */}
     <Text
       position={[1, 0, 0]}
       scale={[0.1, 0.1, 0.1]}

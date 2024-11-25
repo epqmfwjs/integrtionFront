@@ -98,6 +98,8 @@ function NicknameForm() {
           text: '즐거운 시간되세요!.',
           confirmButtonColor: '#fdbb2d',
         }).then(() => {
+          localStorage.removeItem('spotify_token');
+          localStorage.removeItem('metaverse_is_repeat');
           window.location.href = '/';
           console.log('입장 준비 완료!');
         });

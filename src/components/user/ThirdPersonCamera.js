@@ -94,18 +94,18 @@ export const ThirdPersonCamera = ({ target }) => {
      * 클릭 위치 확인을 위한 핸들러
      */
     const handleClick = (e) => {
-      console.log('클릭 위치 - 화면 좌표:', {
-        x: e.clientX,
-        y: e.clientY
-      });
-      console.log('클릭 위치 - 페이지 좌표:', {
-        x: e.pageX,
-        y: e.pageY
-      });
-      console.log('클릭 위치 - 화면 기준 비율:', {
-        x: (e.clientX / window.innerWidth).toFixed(2),
-        y: (e.clientY / window.innerHeight).toFixed(2)
-      });
+      // console.log('클릭 위치 - 화면 좌표:', {
+      //   x: e.clientX,
+      //   y: e.clientY
+      // });
+      // console.log('클릭 위치 - 페이지 좌표:', {
+      //   x: e.pageX,
+      //   y: e.pageY
+      // });
+      // console.log('클릭 위치 - 화면 기준 비율:', {
+      //   x: (e.clientX / window.innerWidth).toFixed(2),
+      //   y: (e.clientY / window.innerHeight).toFixed(2)
+      // });
     };
 
     /**

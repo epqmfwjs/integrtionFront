@@ -16,7 +16,12 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
   useEffect(() => {
     // 엔터키 이벤트 리스너
     const handleKeyPress = (e) => {
-      if (e.key === 'Enter' && !e.repeat) {
+
+      // 검색창이나 다른 input 태그에 focus가 있을 때는 채팅 모드 전환하지 않음
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement?.tagName === 'INPUT';
+
+      if (e.key === 'Enter' && !e.repeat && !isInputFocused) {
         if (!isChatting) {
           setIsChatting(true);
           e.preventDefault();

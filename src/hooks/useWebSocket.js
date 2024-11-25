@@ -2,6 +2,8 @@ import { useRef, useEffect } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 
+
+
 export const useWebSocket = ({
   playerData,
   position,
@@ -22,7 +24,7 @@ export const useWebSocket = ({
 
     try {
       //const socket = new SockJS('http://localhost:5000/ws');
-      const socket = new SockJS('http://gogolckh.ddns.net:10/ws');
+      const socket = new SockJS(process.env.REACT_APP_WEBSOCKET_URL);
       const client = Stomp.over(socket);
       client.debug = () => {};
 

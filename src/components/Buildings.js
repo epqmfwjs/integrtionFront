@@ -11,7 +11,7 @@ import { Ceiling } from './building/Ceiling';
 import { Modal } from './building/Modal';
 import { SoccerBall } from './building/SoccerBall';
 import { Campfire } from './building/Campfire';
-import { YouTubeMP3Player } from './building/YouTubeMP3Player';
+import { SpotifyPlayer } from './building/musicPlayer/SpotifyPlayer';
 import { RigidBody } from '@react-three/rapier';
 
 export const Buildings = ({ characterPosition }) => {
@@ -116,6 +116,7 @@ export const Buildings = ({ characterPosition }) => {
           description: '공용 아이디\ntest\n공용 비밀번호 password123!\n\n본 사이트는 아직 반응형 웹이 아닙니다. PC환경에서 확인해주세요.\n사이트를 방문하시겠습니까?',
           url: 'http://gogolckh.ddns.net:90'
         }}
+        description={'팀프로젝트\n\n전시회정보공유웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL/WebSocket\n\n기간 2024.05.10~2021.06.05'}
       />
 
       <ProjectFrame
@@ -130,6 +131,7 @@ export const Buildings = ({ characterPosition }) => {
           description: '공용 아이디\ntest\n공용 비밀번호 password123!\n\n본 사이트는 아직 반응형 웹이 아닙니다. PC환경에서 확인해주세요.\n사이트를 방문하시겠습니까?',
           url: 'http://gogolckh.ddns.net:89'
         }}
+        description={'팀프로젝트(기업연계)\n\n학생일정관리및커뮤니티웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL\n/AWS/WebSocket/WebRTC\n\n기간 2024.06.13~2021.07.12'}
       />
 
       <ProjectFrame
@@ -144,6 +146,7 @@ export const Buildings = ({ characterPosition }) => {
           description: '공용 아이디\ntest\n공용 비밀번호 password123!\n\n본 사이트는 아직 반응형 웹이 아닙니다. PC환경에서 확인해주세요.\n사이트를 방문하시겠습니까?',
           url: 'http://gogolckh.ddns.net:88'
         }}
+        description={'개인프로젝트\n\n카페인계산기및정보공유웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL\n\n기간 2024.09~2021.10'}
       />
 
       <Ceiling ceilingTexture={ceilingTexture} />
@@ -157,8 +160,10 @@ export const Buildings = ({ characterPosition }) => {
       />
 
       <SoccerBall position={[5, 1, 5]} />
-      <Campfire position={[-40, 0.2, 40]} />
-      <YouTubeMP3Player 
+      <Campfire position={[-38, 0.2, 41]} />
+
+      {/* MusicPlayer */}
+      <SpotifyPlayer 
         position={[-45.8, 1, 45.8]} 
         rotation={[0, Math.PI / 1.5, 0]} 
       />

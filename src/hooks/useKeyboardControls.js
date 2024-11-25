@@ -21,7 +21,8 @@ export const useKeyboardControls = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (getChatting()) return;
+      //if (getChatting()) return;
+      if (getChatting() || document.activeElement.tagName === 'INPUT') return;
 
       const now = performance.now();
       if (now - lastUpdateRef.current < THROTTLE_TIME) return;
@@ -65,7 +66,8 @@ export const useKeyboardControls = () => {
     };
 
     const handleKeyUp = (e) => {
-      if (getChatting()) return;
+      //if (getChatting()) return;
+      if (getChatting() || document.activeElement.tagName === 'INPUT') return;
       
       switch (e.code) {
         case 'KeyW':

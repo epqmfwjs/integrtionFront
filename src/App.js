@@ -5,6 +5,7 @@ import { MetaverseScene } from './components/MetaverseScene';
 import NicknameForm from './components/login/NicknameForm';
 import './App.css';
 
+
 function App() {
   // useCallback을 사용하여 메모이제이션
   const hasNickname = useCallback(() => {
