@@ -17,10 +17,10 @@ export const OtherPlayer = ({
 
   // 캐릭터별 오프셋 설정
   const MODEL_OFFSETS = {
-    '/models/character1.glb': { scale: 0.0125, height: 1.6, col: 1.5, nameTagHeight: 1.3, chatHeight: 2.0 },
-    '/models/character2.glb': { scale: 0.0125, height: 1.65, col: 1.4, nameTagHeight: 1.4, chatHeight: 2.1 },
-    '/models/character3.glb': { scale: 0.0120, height: 1.95, col: 1.7, nameTagHeight: 1.4, chatHeight: 2.4 },
-    '/models/character4.glb': { scale: 0.0110, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 },
+    '/models/character1.glb': { scale: 0.0125, height: 1.6, col: 1.5, nameTagHeight: 1.3, chatHeight: 2.0 }, //제이크
+    '/models/character2.glb': { scale: 0.0125, height: 1.65, col: 1.4, nameTagHeight: 1.4, chatHeight: 2.1 }, //리사
+    '/models/character3.glb': { scale: 0.0120, height: 1.95, col: 1.7, nameTagHeight: 1.4, chatHeight: 2.4 }, //맥스
+    '/models/character4.glb': { scale: 0.0110, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 }, //줄리
     '/models/character5.glb': { scale: 0.0100, height: 1.85, col: 1.6, nameTagHeight: 1.4, chatHeight: 2.3 },
     '/models/character6.glb': { scale: 0.0125, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 }
   };

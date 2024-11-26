@@ -4,7 +4,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { useKeyboardControls } from '../../hooks/useKeyboardControls';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
-import {  useRapier } from '@react-three/rapier';
+import { useRapier } from '@react-three/rapier';
+import * as THREE from 'three';
 
 const MODEL_OFFSETS = {
   '/models/character1.glb': { scale: 0.0125, height: 1.3, col: 1.5 },
@@ -15,6 +16,23 @@ const MODEL_OFFSETS = {
   '/models/character6.glb': { scale: 0.0125, height: 1.4, col: 1.5 }
 };
 
+// 상수 정의
+const MOVEMENT_CONFIG = {
+  walkSpeed: 10,
+  runSpeed: 16,
+  maxWalkSpeed: 12,
+  maxRunSpeed: 20,
+  smoothingWalk: 0.1,
+  smoothingRun: 0.15,
+  rotationSmoothingWalk: 0.05,
+  rotationSmoothingRun: 0.15,
+  jumpForce: 0.4,
+  kickForce: 15,
+  kickRange: 2,
+  velocityDamping: 0.8,
+  positionSmoothing: 0.2
+};
+
 export const Character = ({ position, setPosition, onAnimationChange, modelPath }) => {
   const group = useRef();
   const characterRef = useRef();
@@ -23,6 +41,8 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
   const { camera } = useThree();
   const lastRotation = useRef(0);
   const { world } = useRapier();
+  const lastPosition = useRef(new THREE.Vector3());
+  const velocity = useRef(new THREE.Vector3());
   
   const [currentAnimation, setCurrentAnimation] = useState('Stop');
   const [isKicking, setIsKicking] = useState(false);
@@ -36,6 +56,7 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
   const { scene, animations } = useGLTF(modelPath);
   const { actions } = useAnimations(animations, group);
 
+  // 리소스 정리
   useEffect(() => {
     return () => {
       if (scene) {
@@ -53,16 +74,15 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
     };
   }, [modelPath, scene]);
 
-  useEffect(() => {
-    if (!actions || Object.keys(actions).length === 0) return;
+  // 애니메이션 처리
+  const fadeToAction = useCallback((newAction, duration = 0.5) => {
+    if (!actions || currentAnimation === newAction) return;
 
-    const fadeToAction = (newAction, duration = 0.5) => {
-      if (currentAnimation === newAction) return;
+    if (actions[currentAnimation]) {
+      actions[currentAnimation].fadeOut(duration);
+    }
 
-      if (actions[currentAnimation]) {
-        actions[currentAnimation].fadeOut(duration);
-      }
-
+    if (actions[newAction]) {
       actions[newAction]
         .reset()
         .setEffectiveTimeScale(1)
@@ -72,13 +92,18 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
 
       setCurrentAnimation(newAction);
       onAnimationChange(newAction);
-    };
+    }
+  }, [actions, currentAnimation, onAnimationChange]);
+
+  // 애니메이션 상태 관리
+  useEffect(() => {
+    if (!actions || Object.keys(actions).length === 0) return;
 
     const isMoving = movement.forward || movement.backward || movement.left || movement.right;
     const isRunning = isMoving && movement.run;
     const isJumping = movement.jump;
 
-    if (movement.kick && canKick && actions['Kick']) {  // Kick 애니메이션 존재 확인
+    if (movement.kick && canKick && actions['Kick']) {
       setIsKicking(true);
       setCanKick(false);
       fadeToAction('Kick', 0.2);
@@ -94,18 +119,19 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
       
     } else if (isJumping) {
       const jumpAnim = isMoving ? 'RunJump' : 'StopJump';
-      if (actions[jumpAnim]) {  // 점프 애니메이션 존재 확인
+      if (actions[jumpAnim]) {
         fadeToAction(jumpAnim);
       }
-    } else if (isRunning && actions['FastRun']) {  // FastRun 애니메이션 존재 확인
+    } else if (isRunning && actions['FastRun']) {
       fadeToAction('FastRun');
-    } else if (isMoving && actions['Running']) {  // Running 애니메이션 존재 확인
+    } else if (isMoving && actions['Running']) {
       fadeToAction('Running');
-    } else if (!isKicking && actions['Stop']) {  // Stop 애니메이션 존재 확인
+    } else if (!isKicking && actions['Stop']) {
       fadeToAction('Stop');
     }
-  }, [movement, actions, currentAnimation, onAnimationChange, isKicking, canKick]);
+  }, [movement, actions, fadeToAction, canKick]);
 
+  // 초기 애니메이션 설정
   useEffect(() => {
     if (actions && actions.Stop) {
       actions.Stop.play();
@@ -113,28 +139,29 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
     }
   }, [actions]);
 
+  // 물리 업데이트 및 움직임 처리
   useFrame(() => {
     if (!rigidBodyRef.current) return;
 
+    // 초기화
     if (!isInitialized.current) {
       rigidBodyRef.current.setTranslation({ x: position[0], y: position[1], z: position[2] });
       rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 });
       isInitialized.current = true;
+      lastPosition.current.set(position[0], position[1], position[2]);
     }
-
 
     const cameraAngle = Math.atan2(
       camera.position.x - position[0],
       camera.position.z - position[2]
     );
 
-    const walkSpeed = 10;
-    const runSpeed = 16;
-    const moveSpeed = movement.run ? runSpeed : walkSpeed;
-    
+    // 이동 속도 계산
+    const moveSpeed = movement.run ? MOVEMENT_CONFIG.runSpeed : MOVEMENT_CONFIG.walkSpeed;
     let moveX = 0;
     let moveZ = 0;
 
+    // 이동 방향 계산
     if (movement.forward) {
       moveX -= Math.sin(cameraAngle) * moveSpeed;
       moveZ -= Math.cos(cameraAngle) * moveSpeed;
@@ -152,8 +179,9 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
       moveZ -= Math.sin(cameraAngle) * moveSpeed;
     }
 
+    // 속도 제한 및 보간
     const currentVel = rigidBodyRef.current.linvel();
-    const maxSpeed = movement.run ? 24 : 12;
+    const maxSpeed = movement.run ? MOVEMENT_CONFIG.maxRunSpeed : MOVEMENT_CONFIG.maxWalkSpeed;
     const currentSpeed = Math.sqrt(currentVel.x * currentVel.x + currentVel.z * currentVel.z);
     
     if (currentSpeed > maxSpeed) {
@@ -165,25 +193,32 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
       });
     }
 
+    // 이동 및 회전 처리
     if (moveX !== 0 || moveZ !== 0) {
-      const smoothing = movement.run ? 0.15 : 0.10;
+      const smoothing = movement.run ? MOVEMENT_CONFIG.smoothingRun : MOVEMENT_CONFIG.smoothingWalk;
       const targetVel = {
         x: moveX,
         y: currentVel.y,
         z: moveZ
       };
       
-      rigidBodyRef.current.setLinvel({
-        x: currentVel.x + (targetVel.x - currentVel.x) * smoothing,
-        y: currentVel.y,
-        z: currentVel.z + (targetVel.z - currentVel.z) * smoothing
-      });
+      // 속도 보간
+      velocity.current.set(
+        currentVel.x + (targetVel.x - currentVel.x) * smoothing,
+        currentVel.y,
+        currentVel.z + (targetVel.z - currentVel.z) * smoothing
+      );
 
+      rigidBodyRef.current.setLinvel(velocity.current);
+
+      // 회전 보간
       const angle = Math.atan2(-moveX, -moveZ);
       if (group.current) {
         const currentRotation = group.current.rotation.y;
         const targetRotation = angle;
-        const rotationSmoothing = movement.run ? 0.15 : 0.05;
+        const rotationSmoothing = movement.run ? 
+          MOVEMENT_CONFIG.rotationSmoothingRun : 
+          MOVEMENT_CONFIG.rotationSmoothingWalk;
         
         let rotationDiff = targetRotation - currentRotation;
         if (rotationDiff > Math.PI) rotationDiff -= Math.PI * 2;
@@ -192,70 +227,78 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
         group.current.rotation.y += rotationDiff * rotationSmoothing;
         lastRotation.current = group.current.rotation.y;
       }
-      onAnimationChange(currentAnimation, lastRotation.current);
     } else {
-      onAnimationChange(currentAnimation, lastRotation.current); 
+      // 정지 시 감속
       rigidBodyRef.current.setLinvel({
-        x: currentVel.x * 0.8,
+        x: currentVel.x * MOVEMENT_CONFIG.velocityDamping,
         y: currentVel.y,
-        z: currentVel.z * 0.8
+        z: currentVel.z * MOVEMENT_CONFIG.velocityDamping
       });
     }
 
     // 발차기 처리
     if (movement.kick && canKick && rigidBodyRef.current) {
       const worldPosition = rigidBodyRef.current.translation();
-      const kickRange = 2;
-      const kickForce = 15;
       
       for (let i = 0; i < world.bodies.size; i++) {
         const body = world.bodies.get(i);
-        const bodyUserData = body.userData;
-        
-        if (bodyUserData?.type === 'soccer-ball') {
+        if (body.userData?.type === 'soccer-ball') {
           const ballPos = body.translation();
           const dx = ballPos.x - worldPosition.x;
           const dz = ballPos.z - worldPosition.z;
           const distance = Math.sqrt(dx * dx + dz * dz);
           
-          if (distance < kickRange) {
+          if (distance < MOVEMENT_CONFIG.kickRange) {
             const angle = group.current.rotation.y;
             body.applyImpulse({
-              x: -Math.sin(angle) * kickForce,
-              y: kickForce * 0.3,
-              z: -Math.cos(angle) * kickForce
+              x: -Math.sin(angle) * MOVEMENT_CONFIG.kickForce,
+              y: MOVEMENT_CONFIG.kickForce * 0.3,
+              z: -Math.cos(angle) * MOVEMENT_CONFIG.kickForce
             });
           }
         }
       }
     }
 
+    // 점프 처리
     if (movement.jump && canJump && Math.abs(currentVel.y) < 0.1) {
-      rigidBodyRef.current.applyImpulse({ x: 0, y: 0.40, z: 0 });
+      rigidBodyRef.current.applyImpulse({ 
+        x: 0, 
+        y: MOVEMENT_CONFIG.jumpForce, 
+        z: 0 
+      });
       setCanJump(false);
       setTimeout(() => {
         setCanJump(true);
       }, JUMP_COOLDOWN);
     }
 
+    // 위치 업데이트 및 보간
     const worldPosition = rigidBodyRef.current.translation();
     setPosition([worldPosition.x, worldPosition.y, worldPosition.z]);
 
     if (group.current) {
-      const positionSmoothing = 0.3;
-      group.current.position.x += (worldPosition.x - group.current.position.x) * positionSmoothing;
-      group.current.position.y += (worldPosition.y + 0.3 - group.current.position.y) * positionSmoothing;
-      group.current.position.z += (worldPosition.z - group.current.position.z) * positionSmoothing;
+      group.current.position.lerp(
+        new THREE.Vector3(
+          worldPosition.x,
+          worldPosition.y + 0.3,
+          worldPosition.z
+        ),
+        MOVEMENT_CONFIG.positionSmoothing
+      );
     }
+
+    // 애니메이션 상태 업데이트
+    onAnimationChange(currentAnimation, lastRotation.current);
   });
 
   const modelOffset = MODEL_OFFSETS[modelPath] || { scale: 0.0125, height: 0.73 };
 
+  // 리스폰 처리
   const INITIAL_SPAWN_POSITION = [0, 7, 0];
-  const FALL_THRESHOLD = -5; // 추락 임계값
+  const FALL_THRESHOLD = -5;
   const [isSpawning, setIsSpawning] = useState(true);
 
-  // 안전한 스폰 위치로 리셋
   const resetToSpawnPosition = useCallback(() => {
     if (rigidBodyRef.current) {
       rigidBodyRef.current.setTranslation({ 
@@ -265,6 +308,11 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
       });
       rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 });
       rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 });
+      lastPosition.current.set(
+        INITIAL_SPAWN_POSITION[0],
+        INITIAL_SPAWN_POSITION[1],
+        INITIAL_SPAWN_POSITION[2]
+      );
     }
   }, []);
 
@@ -274,13 +322,10 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
     
     const currentPosition = rigidBodyRef.current.translation();
     
-    // 추락 감지
     if (currentPosition.y < FALL_THRESHOLD) {
-      console.log("Character fell below threshold, respawning...");
       resetToSpawnPosition();
     }
 
-    // 초기 스폰시 위치 설정
     if (isSpawning) {
       resetToSpawnPosition();
       setIsSpawning(false);
@@ -290,41 +335,30 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
   return (
     <group>
       <RigidBody
-        ref={rigidBodyRef}        // 물리 객체 참조용 ref
-        position={position}       // 초기 위치
-        enabledRotations={[false, false, false]}    // x,y,z 축 회전 비활성화
-        enabledTranslations={[true, true, true]}    // x,y,z 축 이동 활성화
-        mass={2}                 // 물체의 질량 (무게감)
-        type="dynamic"           // 물리 영향을 받는 동적 객체
-        colliders={false}        // 기본 충돌체 비활성화 (커스텀 콜라이더 사용)
-        lockRotations={true}     // 회전 잠금 (캐릭터 안정성)
-        friction={0.2}           // 마찰력 (미끄러움 정도)
-        linearDamping={0.5}        // 선형 감쇠 (움직임 저항)
-        gravityScale={5}         // 중력 영향도
-        canSleep={false}        // 물리 연산 항상 활성화
-        ccd={true}              // 연속 충돌 감지 (빠른 움직임 처리)
-        maxVelocity={25}        // 최대 이동 속도
-        solverIterations={80}   // 물리 연산 정확도
-        restitution={0}         // 탄성 (튀어오름 정도)
-        velocityThreshold={0.5} // 속도 임계값 (최소 움직임 감지)
+        ref={rigidBodyRef}
+        position={position}
+        enabledRotations={[false, false, false]}
+        enabledTranslations={[true, true, true]}
+        mass={1}
+        type="dynamic"
+        colliders={false}
+        lockRotations={true}
+        friction={0.2}
+        linearDamping={0.95}
+        angularDamping={0.95}
+        gravityScale={4}
+        canSleep={false}
+        ccd={true}
+        maxVelocity={20}
+        solverIterations={30}
+        restitution={0}
       >
-      <CuboidCollider 
-        args={[0.15, 0.125, 0.15]}
-        position={[0, modelOffset.col / 2, 0]}
-        sensor={false}
-        friction={0.5}
-      />
-
-      {/* 물리엔진 시각화 */}
-      {/* <mesh position={[0, modelOffset.col / 2, 0]}>
-        <boxGeometry args={[0.3, 0.25, 0.3]} /> 
-        <meshBasicMaterial 
-          color="red" 
-          wireframe={true}
-          transparent={true}
-          opacity={0.5}
+        <CuboidCollider 
+          args={[0.15, 0.125, 0.15]}
+          position={[0, modelOffset.col / 2, 0]}
+          sensor={false}
+          friction={0.5}
         />
-      </mesh> */}
       </RigidBody>
       
       <group ref={group}>
@@ -336,7 +370,6 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
             rotation={[0, Math.PI, 0]}
             position={[0, modelOffset.height, 0]}
             frustumCulled={true}
-            matrixAutoUpdate={true}
           />
         )}
       </group>
@@ -357,3 +390,5 @@ const characterModels = [
 characterModels.forEach(model => {
   useGLTF.preload(model);
 });
+
+export default Character;

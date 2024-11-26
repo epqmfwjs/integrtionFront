@@ -353,12 +353,16 @@ export const MetaverseScene = () => {
         antialias: true,
         alpha: false,
         stencil: false,
-        depth: true
+        depth: true,
+        powerPreference: "high-performance"
       }}
       camera={{
         position: [0, 5, 10],
-        fov: 60
+        fov: 60,
+        near: 0.1,
+        far: 1000, 
       }}
+      frameloop="demand"
       onCreated={({ gl }) => {
         gl.setClearColor(new Color('#87CEEB'), 1)
       }}
