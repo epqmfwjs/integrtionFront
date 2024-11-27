@@ -5,7 +5,7 @@ export const modalContainerStyle = {
     position: 'absolute',
     top: '-150px',
     left: '-200px',
-    width: '350px',
+    width: '400px',
     backgroundColor: 'rgba(0, 0, 0, 0.95)',
     padding: '20px',
     borderRadius: '10px',

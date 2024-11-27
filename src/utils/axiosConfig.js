@@ -13,10 +13,11 @@ instance.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401 || error.response?.status === 404) {
-      // 절대 경로로 변경
-      //window.location.replace('http://gogolckh.ddns.net:10');  // replace 사용
+      // 스포티파이 관련 API 호출의 경우 리다이렉트하지 않음
+      if (error.config.url.includes('/api/spotify')) {
+        return Promise.reject(error);
+      }
       window.location.href = '/';
-      return new Promise(() => {});
     }
     return Promise.reject(error);
   }

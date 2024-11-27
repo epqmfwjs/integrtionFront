@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import  axios from '../../../../utils/axiosConfig';
 import {
   searchContainerStyle,
   searchInputStyle,
@@ -16,22 +17,31 @@ export const SearchBar = ({ token, onTrackSelect, onAddToPlaylist }) => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=5`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
+        // 검색어 전처리
+        const processedQuery = searchQuery.trim();
+        //log.info("Searching for:", processedQuery);
+
+        const response = await axios.get('/api/spotify/search', {
+            params: {
+                query: processedQuery,
+                type: 'track',
+                limit: 10,
+                market: 'KR'
+            }
+        });
+        
+        if (response.data && response.data.tracks) {
+            setSearchResults(response.data.tracks.items);
+            if (response.data.tracks.items.length === 0) {
+                console.log("검색 결과가 없습니다.");
+            }
         }
-      );
-      const data = await response.json();
-      setSearchResults(data.tracks.items);
     } catch (error) {
-      console.error('Search error:', error);
+        console.error('Search error:', error);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
 
   const handleKeyDown = (e) => {
     // Enter 키 이벤트의 전파를 중단시키고 검색 실행
@@ -94,22 +104,53 @@ export const SearchBar = ({ token, onTrackSelect, onAddToPlaylist }) => {
                 padding: '10px'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* 트랙 정보 영역 - 최대 너비 제한 */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px',
+                maxWidth: 'calc(100% - 140px)', // 버튼 영역 너비만큼 제외
+                flexShrink: 1 
+              }}>
                 {track.album.images[2] && (
                   <img
                     src={track.album.images[2].url}
                     alt={track.album.name}
-                    style={{ width: '40px', height: '40px', borderRadius: '4px' }}
+                    style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      borderRadius: '4px',
+                      flexShrink: 0 // 이미지 크기 고정
+                    }}
                   />
                 )}
-                <div>
-                  <div style={{ color: 'white', fontSize: '14px' }}>{track.name}</div>
-                  <div style={{ color: '#999', fontSize: '12px' }}>
+                <div style={{ minWidth: 0 }}> {/* 텍스트 오버플로우를 위한 설정 */}
+                  <div style={{ 
+                    color: 'white', 
+                    fontSize: '14px',
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
+                    whiteSpace: 'nowrap'
+                  }}>{track.name}</div>
+                  <div style={{ 
+                    color: '#999', 
+                    fontSize: '12px',
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
+                    whiteSpace: 'nowrap'
+                  }}>
                     {track.artists.map(artist => artist.name).join(', ')}
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+
+              {/* 버튼 영역 - 고정 너비 */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '8px',
+                flexShrink: 0, // 버튼 영역 크기 고정
+                width: '120px' // 버튼 영역 고정 너비
+              }}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -122,7 +163,10 @@ export const SearchBar = ({ token, onTrackSelect, onAddToPlaylist }) => {
                     padding: '5px 10px',
                     borderRadius: '15px',
                     cursor: 'pointer',
-                    fontSize: '12px'
+                    fontSize: '12px',
+                    width: '50px', // 버튼 너비 고정
+                    height: '28px', // 버튼 높이 고정
+                    flexShrink: 0
                   }}
                 >
                   재생
@@ -139,7 +183,10 @@ export const SearchBar = ({ token, onTrackSelect, onAddToPlaylist }) => {
                     padding: '5px 10px',
                     borderRadius: '15px',
                     cursor: 'pointer',
-                    fontSize: '12px'
+                    fontSize: '12px',
+                    width: '50px', // 버튼 너비 고정
+                    height: '28px', // 버튼 높이 고정
+                    flexShrink: 0
                   }}
                 >
                   담기

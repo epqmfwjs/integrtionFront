@@ -4,20 +4,19 @@ import { useFrame } from '@react-three/fiber';
 import { useSpring, animated } from '@react-spring/three';
 import { RigidBody } from '@react-three/rapier';
 import { Html } from '@react-three/drei';
-import { AuthModal } from './components/AuthModal';
 import { PlayerModal } from './components/PlayerModal';
 import { repeatManager  } from './components/RepeatManager';
 import { cos } from 'three/webgpu';
+import  axios from '../../../utils/axiosConfig';
 
 export const SpotifyPlayer = ({ position = [0, 0, 0], rotation = [0, 0, 0] }) => {
   // ===== 상태 관리 =====
-  const [token, setToken] = useState(localStorage.getItem('spotify_token'));
+  const [token, setToken] = useState(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress_ms, setProgress_ms] = useState(0);
   const [duration_ms, setDuration_ms] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [player, setPlayer] = useState(null);
@@ -28,22 +27,47 @@ export const SpotifyPlayer = ({ position = [0, 0, 0], rotation = [0, 0, 0] }) =>
   const [isPlaylistRepeat, setIsPlaylistRepeat] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isRepeatOn, setIsRepeatOn] = useState(repeatManager.getRepeatState());
-  const [newPlaylist, setNewPlaylist] = useState([]);
   const [trackMap, setTrackMap] = useState(new Map());
   const [currentIndex, setCurrentIndex] = useState(0);
 
+
+  // ===== 서버 토큰 관리 =====
+  const getServerToken = async () => {
+    try {
+      const response = await axios.get('/api/spotify/token');
+      return response.data.access_token;
+    } catch (error) {
+      console.error('Failed to get server token:', error);
+      // 토큰 가져오기 실패해도 컴포넌트는 유지
+      return null;
+    }
+  };
+
+  // ===== 초기 토큰 설정 =====
+  useEffect(() => {
+    const initializeToken = async () => {
+      const serverToken = await getServerToken();
+      if (serverToken) {
+        setToken(serverToken);
+        //setShowPlayerModal(true);
+      }
+    };
+
+    initializeToken();
+  }, []);
+
   // 현재 맵 상태 확인 함수
-const logMapState = () => {
-  console.log('현재 트랙 맵 상태:', {
-    총곡수: trackMap.size,
-    현재인덱스: currentIndex,
-    전체트랙: Array.from(trackMap.entries()).map(([index, track]) => ({
-      인덱스: index,
-      곡명: track.name,
-      아티스트: track.artists?.[0]?.name
-    }))
-  });
-};
+  const logMapState = () => {
+    console.log('현재 트랙 맵 상태:', {
+      총곡수: trackMap.size,
+      현재인덱스: currentIndex,
+      전체트랙: Array.from(trackMap.entries()).map(([index, track]) => ({
+        인덱스: index,
+        곡명: track.name,
+        아티스트: track.artists?.[0]?.name
+      }))
+    });
+  };
 
   // ===== 애니메이션 관련 =====
   const [rotation2, setRotation2] = useState(0);
@@ -74,25 +98,24 @@ const logMapState = () => {
   const spotifyApi = {
     async getCurrentTrack() {
       if (!token || isTransitioning) return null;
-
+  
       try {
-        const response = await fetch('https://api.spotify.com/v1/me/player', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.status === 200) {
-          const data = await response.json();
-          if (data && data.item) {
-            setCurrentTrack(data.item);
-            setIsPlaying(data.is_playing);
-            setProgress_ms(data.progress_ms || 0);
-            setDuration_ms(data.item.duration_ms || 0);
-            setLastUpdateTime(Date.now());
-            return data;
+          const response = await axios.get('/api/spotify/player/current-playback');
+          
+          if (response.status === 200 && response.data && response.data.item) {
+              setCurrentTrack(response.data.item);
+              setIsPlaying(response.data.is_playing);
+              setProgress_ms(response.data.progress_ms || 0);
+              setDuration_ms(response.data.item.duration_ms || 0);
+              setLastUpdateTime(Date.now());
+              return response.data;
           }
-        }
-        return null;
+          return null;
       } catch (error) {
+        if (error.response?.status === 401) {
+          const newToken = await getServerToken();
+          if (newToken) setToken(newToken);
+        }
         console.error('Get Current Track', error);
         return null;
       }
@@ -114,7 +137,7 @@ const logMapState = () => {
         let nextIndex;
         if (currentPlaylistIndex < playlist.length - 1) {
           nextIndex = currentPlaylistIndex + 1;
-          console.log('다음 트랙 nextIndex : ', nextIndex);
+          //console.log('다음 트랙 nextIndex : ', nextIndex);
         } else if (isRepeatOn && currentPlaylistIndex === playlist.length - 1) {
           console.log('반복재생이면서 마지막트랙이면 첫번째 트랙으로');
           nextIndex = 0;
@@ -182,46 +205,38 @@ const logMapState = () => {
       if (!token || !deviceId || isTransitioning) return;
     
       setIsTransitioning(true);
-      console.log('Playing Track', { uri });
+      //console.log('Playing Track', { uri });
     
       try {
-        let playResponse = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-          method: 'PUT',
+        let playResponse = await axios.put(`/api/spotify/player/play?device_id=${deviceId}`, {
+          uris: [uri],
+          position_ms: 0
+        }, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            uris: [uri],
-            position_ms: 0
-          }),
+          }
         });
     
-        // 재생 실패시에만 기기 활성화 시도
         if (!playResponse.ok && playResponse.status === 404) {
-          await fetch('https://api.spotify.com/v1/me/player', {
-            method: 'PUT',
+          await axios.put('/api/spotify/player', {
+            device_ids: [deviceId],
+            play: false,
+          }, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              device_ids: [deviceId],
-              play: false,
-            }),
+            }
           });
     
-          // 다시 재생 시도
-          playResponse = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-            method: 'PUT',
+          playResponse = await axios.put(`/api/spotify/player/play?device_id=${deviceId}`, {
+            uris: [uri],
+            position_ms: 0
+          }, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              uris: [uri],
-              position_ms: 0
-            }),
+            }
           });
         }
     
@@ -237,6 +252,10 @@ const logMapState = () => {
           }
         }
       } catch (error) {
+        if (error.response?.status === 401) {
+          const newToken = await getServerToken();
+          if (newToken) setToken(newToken);
+        }
         console.error('Play Track', error);
       } finally {
         setTimeout(() => setIsTransitioning(false), 500);
@@ -289,17 +308,20 @@ const logMapState = () => {
       window.onSpotifyWebPlaybackSDKReady = () => {
         const spotifyPlayer = new window.Spotify.Player({
           name: 'Metaverse Player',
-          getOAuthToken: cb => { cb(token); },
+          getOAuthToken: async cb => { 
+            const serverToken = await getServerToken();
+            cb(serverToken || token);
+          },
           volume: 0.5
         });
 
         // 에러 핸들러 설정
         ['initialization_error', 'authentication_error', 'account_error', 'playback_error'].forEach(error => {
-          spotifyPlayer.addListener(error, ({ message }) => {
+          spotifyPlayer.addListener(error, async ({ message }) => {
             console.error(error, message);
             if (error === 'authentication_error') {
-              localStorage.removeItem('spotify_token');
-              setToken(null);
+              const newToken = await getServerToken();
+              if (newToken) setToken(newToken);
             }
           });
         });
@@ -374,10 +396,10 @@ const logMapState = () => {
       if (newProgress >= duration_ms) {
         setProgress_ms(duration_ms);
         if (!isTransitioning) {
-          console.log('실시간재생시간업데이트에서 현재 인덱스 : ',currentPlaylistIndex);
-          console.log('실시간재생시간업데이트에서 현재 리스트길이 : ',currentPlaylistIndex);
+          //console.log('실시간재생시간업데이트에서 현재 인덱스 : ',currentPlaylistIndex);
+          //console.log('실시간재생시간업데이트에서 현재 리스트길이 : ',currentPlaylistIndex);
           if (isRepeatOn || currentPlaylistIndex < playlist.length - 1) {
-            console.log('실시간재생시간업데이트에서 실행');
+            //console.log('실시간재생시간업데이트에서 실행');
             spotifyApi.nextTrack();
           } else {
             setIsPlaying(false);
@@ -410,22 +432,6 @@ const logMapState = () => {
     }
   }, [currentTrack]);
 
-  // ===== 인증 메시지 리스너 =====
-  useEffect(() => {
-    const handleAuthMessage = (event) => {
-      if (event.data.type === 'SPOTIFY_AUTH_SUCCESS') {
-        console.log('Authentication Success');
-        setToken(event.data.token);
-        localStorage.setItem('spotify_token', event.data.token);
-        setShowAuthModal(false);
-        setShowPlayerModal(true);
-      }
-    };
-
-    window.addEventListener('message', handleAuthMessage);
-    return () => window.removeEventListener('message', handleAuthMessage);
-  }, []);
-
   // ===== 디스크 회전 =====
   useFrame(() => {
     if (isPlaying) {
@@ -448,11 +454,11 @@ const logMapState = () => {
         scale={scale}
         onPointerOver={() => setIsHovered(true)}
         onPointerOut={() => setIsHovered(false)}
-        onClick={() => token ? setShowPlayerModal(true) : setShowAuthModal(true)}
+        onClick={() => setShowPlayerModal(true)}
       >
         {/* 메인 스피커 본체 */}
-        <mesh castShadow position={[0, 0.5, 0]}>
-          <boxGeometry args={[2, 3, 1]} />
+        <mesh castShadow position={[0, 0.5, -0.75]}>
+          <boxGeometry args={[2, 3, 2.5]} />
           <meshStandardMaterial color="#282828" />
         </mesh>
   
@@ -580,7 +586,7 @@ const logMapState = () => {
                 textAlign: 'center',
                 fontFamily: 'monospace'
               }}>
-                {currentTrack.name}
+                {/* {currentTrack.name} */}
               </div>
             </Html>
           )}
@@ -593,9 +599,6 @@ const logMapState = () => {
         </mesh>
 
         {/* 모달들 */}
-        {showAuthModal && (
-          <AuthModal onClose={() => setShowAuthModal(false)} />
-        )}
         {showPlayerModal && (
           <PlayerModal
             currentTrack={{
@@ -613,7 +616,7 @@ const logMapState = () => {
             onRemoveFromPlaylist={spotifyApi.removeFromPlaylist}
             onAddToPlaylist={spotifyApi.addToPlaylist}
             isPlaylistRepeat={isRepeatOn}
-            onToggleRepeat={ handleToggleRepeat }
+            onToggleRepeat={handleToggleRepeat}
             currentPlaylistIndex={currentPlaylistIndex}
             token={token}
             recentTracks={recentTracks}
