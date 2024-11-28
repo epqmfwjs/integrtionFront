@@ -258,7 +258,7 @@ function NicknameForm() {
             </button>
           </div>
           
-          {isChecked && (
+          {/* {isChecked && (
             <div style={{
               marginBottom: '16px',
               padding: '8px',
@@ -272,7 +272,7 @@ function NicknameForm() {
                 '사용 가능한 닉네임입니다.' : 
                 '이미 사용 중인 닉네임입니다.'}
             </div>
-          )}
+          )} */}
           
           <button
             type="submit"
