@@ -451,7 +451,8 @@ export const useWebSocket = ({
                 position: compressPosition(position),
                 characterId: data.characterId,
                 modelPath: data.modelPath,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                needsNotification: true
               });
 
               client.send('/app/join', {}, JSON.stringify(joinMessage));
