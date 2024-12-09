@@ -25,6 +25,7 @@ export const Buildings = ({ characterPosition }) => {
   const ceilingTexture = useLoader(TextureLoader, '/images/ceiling.jpg');
   const wallsTexture = useLoader(TextureLoader, '/images/walls.jpg');
   const woodTexture = useLoader(TextureLoader, '/images/wood.jpg');
+  
 
   // 텍스처 설정
   [marbleTexture, ceilingTexture, wallsTexture, woodTexture].forEach(texture => {
@@ -116,7 +117,7 @@ export const Buildings = ({ characterPosition }) => {
           description: '공용 아이디\ntest\n공용 비밀번호 password123!\n\n본 사이트는 아직 반응형 웹이 아닙니다. PC환경에서 확인해주세요.\n사이트를 방문하시겠습니까?',
           url: 'http://gogolckh.ddns.net:90'
         }}
-        description={'팀프로젝트\n\n전시회정보공유웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL/WebSocket\n\n기간 2024.05.10~2021.06.05'}
+        description={'팀프로젝트\n\n전시회정보공유웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL/WebSocket\n\n기간 2024.05.10~2024.06.05'}
       />
 
       <ProjectFrame
@@ -131,7 +132,7 @@ export const Buildings = ({ characterPosition }) => {
           description: '공용 아이디\ntest\n공용 비밀번호 password123!\n\n본 사이트는 아직 반응형 웹이 아닙니다. PC환경에서 확인해주세요.\n사이트를 방문하시겠습니까?',
           url: 'http://gogolckh.ddns.net:89'
         }}
-        description={'팀프로젝트(기업연계)\n\n학생일정관리및커뮤니티웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL\n/AWS/WebSocket/WebRTC\n\n기간 2024.06.13~2021.07.12'}
+        description={'팀프로젝트(기업연계)\n\n학생일정관리및커뮤니티웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL\n/AWS/WebSocket/WebRTC\n\n기간 2024.06.13~2024.07.12'}
       />
 
       <ProjectFrame
@@ -146,7 +147,7 @@ export const Buildings = ({ characterPosition }) => {
           description: '공용 아이디\ntest\n공용 비밀번호 password123!\n\n본 사이트는 아직 반응형 웹이 아닙니다. PC환경에서 확인해주세요.\n사이트를 방문하시겠습니까?',
           url: 'http://gogolckh.ddns.net:88'
         }}
-        description={'개인프로젝트\n\n카페인계산기및정보공유웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL\n\n기간 2024.09~2021.10'}
+        description={'개인프로젝트\n\n카페인계산기및정보공유웹서비스\n\n기술 Java/SpringBoot/gradle/JPA/MySQL\n\n기간 2024.09~2024.10'}
       />
 
       <Ceiling ceilingTexture={ceilingTexture} />

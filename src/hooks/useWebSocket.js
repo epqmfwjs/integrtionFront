@@ -496,7 +496,8 @@ const sendChat = useCallback((message) => {
         const leaveMessage = optimizeDataForTransport({
           nickname: playerData.nickname,
           position: compressPosition(position),
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          needsNotification: true
         });
 
         await handleError(
