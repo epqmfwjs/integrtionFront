@@ -1,5 +1,3 @@
-// src/components/building/musicPlayer/components/PlayerControls.js
-
 import React from 'react';
 import {
  controlsContainerStyle,

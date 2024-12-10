@@ -1,4 +1,3 @@
-// useKeyboardControls.js
 import { useState, useEffect, useRef } from 'react';
 import { getChatting } from '../state/chatState';
 

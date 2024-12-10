@@ -1,5 +1,3 @@
-// src/components/building/musicPlayer/components/AuthModal.js
-
 import React from 'react';
 import { Html } from '@react-three/drei';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_REDIRECT_URI, SCOPE } from '../utils/constants';

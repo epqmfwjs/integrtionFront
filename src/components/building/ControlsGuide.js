@@ -1,4 +1,3 @@
-// src/components/building/ControlsGuide.js
 import { Text } from '@react-three/drei';
 
 export const ControlsGuide = () => (

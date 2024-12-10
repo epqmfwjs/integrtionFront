@@ -1,4 +1,3 @@
-// websocketUtils.js
 
 // 설정
 export const PREDICTION_CONFIG = {

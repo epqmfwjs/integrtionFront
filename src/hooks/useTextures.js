@@ -1,4 +1,3 @@
-// src/hooks/useTextures.js
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader, RepeatWrapping } from 'three';
 

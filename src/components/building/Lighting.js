@@ -1,4 +1,3 @@
-// src/components/building/Lighting.js
 export const Lighting = () => (
     <>
       <spotLight

@@ -1,4 +1,3 @@
-// SoccerBall.js
 import React, { useRef, useEffect } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';

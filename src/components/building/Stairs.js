@@ -1,4 +1,3 @@
-// src/components/building/Stairs.js
 import React from 'react';
 import { RigidBody } from '@react-three/rapier';
 

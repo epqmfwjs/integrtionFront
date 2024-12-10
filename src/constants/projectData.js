@@ -1,4 +1,3 @@
-// src/constants/projectData.js
 export const projectData = [
     {
       id: 'exhibitscape',

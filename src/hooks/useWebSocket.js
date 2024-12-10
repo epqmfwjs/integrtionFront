@@ -12,7 +12,6 @@ import {
   compressPosition,
   cleanupStaleData,
   handleError,
-  // 누락된 함수들 추가
   predictAndInterpolateRotation,
   updateNetworkParams,
   scheduleUpdate,
@@ -28,16 +27,13 @@ export const useWebSocket = ({
   setChatHistory,
   setChatMessage
 }) => {
-  // 기존 refs
   const stompClientRef = useRef(null);
   const positionQueue = useRef([]);
   const chatMessagesRef = useRef({});
   const lastPositionsRef = useRef({});
   const lastUpdateTime = useRef(0);
-  const lastSentPosition = useRef(null);  // 추가
-  const animationFrameRef = useRef(null); // 추가
-
-  // 새로운 최적화 관련 refs
+  const lastSentPosition = useRef(null);
+  const animationFrameRef = useRef(null);
   const performanceMonitor = useRef(new PerformanceMonitor());
   const connectionManager = useRef(new ConnectionManager(PREDICTION_CONFIG));
   const updateThrottle = useRef(createThrottle(PREDICTION_CONFIG.minUpdateInterval));
@@ -102,7 +98,7 @@ export const useWebSocket = ({
     const optimizedData = {
       nickname: playerData?.nickname,
       position: smoothedPosition.map(coord => {
-        // 안전한 숫자 변환
+        
         const safeCoord = Number.isFinite(coord) ? coord : 0;
         return Number(safeCoord.toFixed(2));
       }),
@@ -189,7 +185,7 @@ export const useWebSocket = ({
     };
   }, []);
 
-  // 최적화된 위치 업데이트 처리
+  // 위치 업데이트 처리
   const handlePositionUpdate = useCallback((positions, timestamp) => {
     if (!positions) return;
 
@@ -274,7 +270,7 @@ export const useWebSocket = ({
     });
   }, [playerData, predictAndInterpolatePosition]);
 
-  // 최적화된 데이터 전송
+  // 데이터 전송
   const sendPositionUpdate = useCallback(() => {
     if (!stompClientRef.current?.connected) return;
 
@@ -413,7 +409,7 @@ export const useWebSocket = ({
                 }
               });
               
-              // 2. 채팅 메시지 구독
+              // 채팅 메시지 구독
               client.subscribe('/topic/chat', message => {
                 try {
                   const chatMessage = JSON.parse(message.body);
@@ -445,7 +441,7 @@ export const useWebSocket = ({
                 }
               });
 
-              // 최적화된 입장 메시지
+              // 입장 메시지
               const joinMessage = optimizeDataForTransport({
                 nickname: data.nickname,
                 position: compressPosition(position),
@@ -489,7 +485,7 @@ const sendChat = useCallback((message) => {
   }
 }, [playerData, setChatHistory, setChatMessage]);
 
-  // 최적화된 연결 해제
+  // 연결 해제
   const disconnect = useCallback(async () => {
     if (stompClientRef.current?.connected && playerData) {
       try {

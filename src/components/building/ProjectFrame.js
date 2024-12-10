@@ -1,4 +1,3 @@
-// src/components/building/ProjectFrame.js
 import React, { useState } from 'react';
 import { Text } from '@react-three/drei';
 import { useSpring, animated } from '@react-spring/three';

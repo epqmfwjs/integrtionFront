@@ -1,4 +1,3 @@
-// SafePhysicsInitializer.js
 import { useState, useEffect } from 'react';
 import { useRapier } from '@react-three/rapier';
 import React from 'react';

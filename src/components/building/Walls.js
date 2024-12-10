@@ -1,4 +1,3 @@
-// src/components/building/Walls.js
 import React from 'react';
 import { RigidBody } from '@react-three/rapier';
 import { Text } from '@react-three/drei';

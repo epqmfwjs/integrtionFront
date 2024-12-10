@@ -1,4 +1,3 @@
-// src/hooks/usePointerLock.js
 import { useEffect, useCallback } from 'react';
 
 export const usePointerLock = () => {

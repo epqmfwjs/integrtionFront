@@ -8,13 +8,13 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
   const chatContainerRef = useRef(null);
   const [isMobile] = useState(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
 
-  // 채팅 상태 변경 시 전역 상태 업데이트
+  
   useEffect(() => {
     setChatting(isChatting);
   }, [isChatting]);
 
   useEffect(() => {
-    // 엔터키 이벤트 리스너
+    
     const handleKeyPress = (e) => {
 
       // 검색창이나 다른 input 태그에 focus가 있을 때는 채팅 모드 전환하지 않음
@@ -31,7 +31,7 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
         e.stopPropagation();
         setIsChatting(false);
         setMessage('');
-        // 이벤트 완전 중단
+        
         e.stopImmediatePropagation();
         return false;
       }
@@ -56,12 +56,12 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
     }
   }, [chatHistory]);
 
-  // touchstart 이벤트 리스너 제거 (onClick만 사용)
+  
   useEffect(() => {
     if (isMobile) {
       const chatButton = document.querySelector('.chat-button');
       if (chatButton) {
-        // 터치 이벤트 리스너 제거
+        
         return () => {};
       }
     }
@@ -72,7 +72,7 @@ const ChatInterface = ({ onSendMessage, chatHistory }) => {
     if (message.trim()) {
       onSendMessage(message.trim());
       setMessage('');
-      setIsChatting(false); // 메시지 전송 후 채팅 모드 종료
+      setIsChatting(false);
     }
   };
 

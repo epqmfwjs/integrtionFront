@@ -1,5 +1,3 @@
-// src/components/building/musicPlayer/styles/modalStyles.js
-
 // 모달 공통 컨테이너 스타일
 export const modalContainerStyle = {
     position: 'absolute',

@@ -1,4 +1,3 @@
-// src/components/building/Glass.js
 export const Glass = () => (
     <mesh position={[0, 5, 25]} castShadow>
       <boxGeometry args={[50, 10, 0.1]} />

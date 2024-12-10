@@ -1,4 +1,3 @@
-// RepeatManager.js
 class RepeatManager {
     constructor() {
       // 초기 상태 로드

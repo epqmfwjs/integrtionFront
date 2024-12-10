@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Billboard, Text } from '@react-three/drei';
 

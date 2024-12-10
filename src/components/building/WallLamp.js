@@ -1,4 +1,3 @@
-// src/components/building/WallLamp.js
 import React from 'react';
 import { MeshStandardMaterial } from 'three';
 

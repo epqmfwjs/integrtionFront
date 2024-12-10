@@ -1,4 +1,3 @@
-// src/components/building/musicPlayer/utils/spotifyUtils.js
 import { createContext, useContext, useState } from 'react';
 
 // SDK 스크립트 로드 함수

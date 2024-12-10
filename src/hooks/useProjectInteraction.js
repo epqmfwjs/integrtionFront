@@ -1,4 +1,3 @@
-// src/hooks/useProjectInteraction.js
 import { useState, useCallback } from 'react';
 
 export const useProjectInteraction = (gl) => {

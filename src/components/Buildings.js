@@ -1,4 +1,3 @@
-// src/components/Buildings.js
 import React, { useState, useCallback } from 'react';
 import { useThree, useLoader } from '@react-three/fiber';
 import { TextureLoader, RepeatWrapping } from 'three';
