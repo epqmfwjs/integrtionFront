@@ -476,7 +476,8 @@ const sendChat = useCallback((message) => {
     const chatData = {
       nickname: playerData.nickname,
       message: message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      characterId: playerData.characterId,
     };
     
     stompClientRef.current.send('/app/chat', {}, JSON.stringify(chatData));
