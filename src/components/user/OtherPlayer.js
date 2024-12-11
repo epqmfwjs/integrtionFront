@@ -22,7 +22,8 @@ export const OtherPlayer = ({
     '/models/character3.glb': { scale: 0.0120, height: 1.95, col: 1.7, nameTagHeight: 1.4, chatHeight: 2.4 }, //맥스
     '/models/character4.glb': { scale: 0.0110, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 }, //줄리
     '/models/character5.glb': { scale: 0.0100, height: 1.85, col: 1.6, nameTagHeight: 1.4, chatHeight: 2.3 },
-    '/models/character6.glb': { scale: 0.0125, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 }
+    '/models/character6.glb': { scale: 0.0125, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 },
+    '/models/character99.glb': { scale: 0, height: 1.3, col: 1.5, chatHeight: 2.2 },//관리자
   };
  
   // 애니메이션 매핑 추가
@@ -134,7 +135,8 @@ const characterModels = [
   '/models/character3.glb',
   '/models/character4.glb',
   '/models/character5.glb',
-  '/models/character6.glb'
+  '/models/character6.glb',
+  '/models/character99.glb'
 ];
 
 characterModels.forEach(model => {

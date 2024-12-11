@@ -12,8 +12,10 @@ import { SoccerBall } from './building/SoccerBall';
 import { Campfire } from './building/Campfire';
 import { SpotifyPlayer } from './building/musicPlayer/SpotifyPlayer';
 import { RigidBody } from '@react-three/rapier';
+import { NPC } from './building/npc/NPC';
+import { NPCModal } from './building/npc/NPCModal';
 
-export const Buildings = ({ characterPosition }) => {
+export const Buildings = ({ characterPosition, playerData }) => {
   const { gl } = useThree();
   
   // 텍스처 로딩
@@ -24,6 +26,11 @@ export const Buildings = ({ characterPosition }) => {
   const ceilingTexture = useLoader(TextureLoader, '/images/ceiling.jpg');
   const wallsTexture = useLoader(TextureLoader, '/images/walls.jpg');
   const woodTexture = useLoader(TextureLoader, '/images/wood.jpg');
+  const [isNPCModalOpen, setIsNPCModalOpen] = useState(false);
+
+  const handleNPCInteract = useCallback(() => {
+    setIsNPCModalOpen(true);
+  }, []);
   
 
   // 텍스처 설정
@@ -166,6 +173,19 @@ export const Buildings = ({ characterPosition }) => {
       <SpotifyPlayer 
         position={[-45.8, 1, 45.8]} 
         rotation={[0, Math.PI / 1.5, 0]} 
+      />
+
+      {/* NPC */}
+      <NPC 
+        position={[8, 1.35, -15]} 
+        onInteract={handleNPCInteract}
+      />
+      
+      <NPCModal 
+        isOpen={isNPCModalOpen}
+        onClose={() => setIsNPCModalOpen(false)}
+        position={[8, 0, -15]}
+        playerData={playerData}
       />
     </group>
   );

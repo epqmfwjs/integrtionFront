@@ -383,7 +383,8 @@ const characterModels = [
   '/models/character3.glb',
   '/models/character4.glb',
   '/models/character5.glb',
-  '/models/character6.glb'
+  '/models/character6.glb',
+  '/models/character99.glb'
 ];
 
 characterModels.forEach(model => {

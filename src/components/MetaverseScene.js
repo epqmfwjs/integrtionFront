@@ -384,7 +384,10 @@ export const MetaverseScene = () => {
         maxPositionIterations={20}
       >
         <Ground onGroundReady={handleGroundReady} />
-        <Buildings characterPosition={position} />
+        <Buildings 
+          characterPosition={position}
+          playerData={playerData}
+        />
         
         {isGroundReady && (
           <Character 
