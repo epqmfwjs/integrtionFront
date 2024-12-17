@@ -22,7 +22,7 @@ const NicknameText = ({ nickname, position }) => {
  if (!nickname) return null;
  
  return (
-   <group position={[position[0], position[1] + 3.5, position[2]]}>
+   <group position={[position[0], position[1] + 2.5, position[2]]}>
      <Billboard
        follow={true}
        lockX={true}
@@ -404,7 +404,7 @@ export const MetaverseScene = () => {
         <ChatBubble 
           message={chatMessage}
           position={position}
-          height={3.2}
+          height={2.5}
         />
         
         {Object.entries(otherPlayers).map(([playerNickname, data]) => (

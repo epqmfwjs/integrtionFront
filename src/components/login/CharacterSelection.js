@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, useAnimations } from '@react-three/drei';
+import { OrbitControls, useGLTF, useAnimations, PerspectiveCamera } from '@react-three/drei';
 import axios from '../../utils/axiosConfig';
 import { useSwipeable } from 'react-swipeable';
 
@@ -81,7 +81,7 @@ function Model({ modelPath }) {
   }, [actions]);
 
   // 모델 스케일 축소
-  const scale = 0.00800; // 기존 0.0125에서 축소
+  const scale = 1.8;
   scene.scale.set(scale, scale, scale);
 
   return <primitive object={scene} />;
@@ -125,19 +125,31 @@ const CharacterCard = ({
       }}>
         <Canvas
           camera={{ 
-            // 화면 크기에 따라 카메라 위치 동적 조정
-            position: [0, 0.8, screenSize <= breakpoints.tablet ? 3 : 2.5],
+            position: [0, 1.5, screenSize <= breakpoints.tablet ? 3 : 2.5],
             fov: screenSize <= breakpoints.tablet ? 50 : 45
           }}
           style={{ background: 'transparent' }}
         >
+          {/* PerspectiveCamera 추가 */}
+          <PerspectiveCamera 
+            makeDefault 
+            position={[0, 0.7, screenSize <= breakpoints.tablet ? 3 : 2.5]}
+            fov={screenSize <= breakpoints.tablet ? 50 : 45}
+          />
+          
           <ambientLight intensity={5} />
-          <pointLight position={[10, 10, 10]} intensity={2} />
-          <spotLight position={[0, 5, 0]} intensity={1} angle={0.6} penumbra={1} />
+          <pointLight position={[10, 5, 10]} intensity={2} />
+          <spotLight 
+            position={[0, 3, 0]} 
+            intensity={1.5} 
+            angle={0.6} 
+            penumbra={1} 
+          />
           <Suspense fallback={null}>
-            <Model modelPath={character.modelPath} />
+            <group position={[0, -0.01, 0]}>
+              <Model modelPath={character.modelPath} />
+            </group>
           </Suspense>
-          {/* PC 화면에서만 OrbitControls 활성화 */}
           {screenSize > breakpoints.md && (
             <OrbitControls 
               enableZoom={false}
@@ -278,12 +290,12 @@ const CharacterSelection = ({ onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const characters = [
-    { id: 1, name: "제이크", description: "첫 번째 캐릭터", modelPath: "/models/character1.glb" },
-    { id: 2, name: "리사", description: "두 번째 캐릭터", modelPath: "/models/character2.glb" },
-    { id: 3, name: "맥스", description: "세 번째 캐릭터", modelPath: "/models/character3.glb" },
-    { id: 4, name: "줄리", description: "네 번째 캐릭터", modelPath: "/models/character4.glb" },
-    { id: 5, name: "잠비", description: "다섯 번째 캐릭터", modelPath: "/models/character5.glb" },
-    { id: 6, name: "그렘린", description: "여섯 번째 캐릭터", modelPath: "/models/character6.glb" }
+    { id: 1, name: "네모", description: "첫 번째 캐릭터", modelPath: "/models/character1.glb" },
+    { id: 2, name: "세모", description: "두 번째 캐릭터", modelPath: "/models/character2.glb" },
+    { id: 3, name: "동그라미", description: "세 번째 캐릭터", modelPath: "/models/character3.glb" },
+    { id: 4, name: "456번", description: "네 번째 캐릭터", modelPath: "/models/character4.glb" },
+    { id: 5, name: "101번", description: "다섯 번째 캐릭터", modelPath: "/models/character5.glb" },
+    { id: 6, name: "001번", description: "여섯 번째 캐릭터", modelPath: "/models/character6.glb" }
   ];
 
   useEffect(() => {

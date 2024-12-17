@@ -176,10 +176,31 @@ export const Buildings = ({ characterPosition, playerData }) => {
       />
 
       {/* NPC */}
-      <NPC 
-        position={[8, 1.35, -15]} 
-        onInteract={handleNPCInteract}
-      />
+      <group>
+        <NPC 
+          position={[8, 1.2, -15]} 
+          onInteract={handleNPCInteract}
+        />
+        
+        {/* NPC 전용 조명 */}
+        <spotLight
+          position={[8, 1.5, -15]} // NPC보다 살짝 아래에 위치
+          angle={0.5} // 조명 각도
+          penumbra={0.5} // 조명 경계의 부드러움
+          intensity={5} // 조명 강도
+          color="#ffffff" // 조명 색상
+          castShadow // 그림자 생성
+          target-position={[8, 5, -15]} // 조명이 비추는 방향 (NPC 위쪽)
+        />
+        
+        {/* 추가적인 ambient light로 부드럽게 */}
+        <pointLight
+          position={[7.6, 1.5, -14.5]}
+          intensity={2}
+          distance={6}
+          color="#ffffff"
+        />
+      </group>
       
       <NPCModal 
         isOpen={isNPCModalOpen}

@@ -58,7 +58,7 @@ export function NPC({ position, onInteract }) {
      </Html>
      <primitive 
        object={scene} 
-       scale={0.0125}
+       scale={2.5}
        rotation={[0, 200, 0]}
      />
    </group>

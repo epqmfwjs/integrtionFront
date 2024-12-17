@@ -17,13 +17,13 @@ export const OtherPlayer = ({
 
   // 캐릭터별 오프셋 설정
   const MODEL_OFFSETS = {
-    '/models/character1.glb': { scale: 0.0125, height: 1.6, col: 1.5, nameTagHeight: 1.3, chatHeight: 2.0 }, //제이크
-    '/models/character2.glb': { scale: 0.0125, height: 1.65, col: 1.4, nameTagHeight: 1.4, chatHeight: 2.1 }, //리사
-    '/models/character3.glb': { scale: 0.0120, height: 1.95, col: 1.7, nameTagHeight: 1.4, chatHeight: 2.4 }, //맥스
-    '/models/character4.glb': { scale: 0.0110, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 }, //줄리
-    '/models/character5.glb': { scale: 0.0100, height: 1.85, col: 1.6, nameTagHeight: 1.4, chatHeight: 2.3 },
-    '/models/character6.glb': { scale: 0.0125, height: 1.7, col: 1.5, nameTagHeight: 1.4, chatHeight: 2.2 },
-    '/models/character99.glb': { scale: 0, height: 1.3, col: 1.5, chatHeight: 2.2 },//관리자
+    '/models/character1.glb': { scale: 2.1, height: 0.45, col: 1.1, nameTagHeight: 2.1, chatHeight: 2.2 },
+    '/models/character2.glb': { scale: 2.1, height: 0.45, col: 1.1, nameTagHeight: 2.1, chatHeight: 2.2 },
+    '/models/character3.glb': { scale: 2.1, height: 0.45, col: 1.1, nameTagHeight: 2.1, chatHeight: 2.2 },
+    '/models/character4.glb': { scale: 2, height: 0.45, col: 1.1, nameTagHeight: 2.1, chatHeight: 2.2 },
+    '/models/character5.glb': { scale: 2, height: 0.45, col: 1.1, nameTagHeight: 2.1, chatHeight: 2.2 },
+    '/models/character6.glb': { scale: 2, height: 0.45, col: 1.1, nameTagHeight: 2.1, chatHeight: 2.2 },
+    '/models/character99.glb': { scale: 0, height: 1.2, col: 1.1, chatHeight: 2.2 },//관리자
   };
  
   // 애니메이션 매핑 추가
@@ -64,8 +64,8 @@ export const OtherPlayer = ({
   const modelOffset = MODEL_OFFSETS[modelPath] || { 
     scale: 0.0125, 
     height: 0.73, 
-    nameTagHeight: 0.9,
-    chatHeight: 1.8 
+    nameTagHeight: 0.6,
+    chatHeight: 2.5
   };
 
   const nameTagPosition = modelOffset.height + modelOffset.nameTagHeight;

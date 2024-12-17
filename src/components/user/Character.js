@@ -7,12 +7,12 @@ import { useRapier } from '@react-three/rapier';
 import * as THREE from 'three';
 
 const MODEL_OFFSETS = {
-  '/models/character1.glb': { scale: 0.0125, height: 1.3, col: 1.5 },
-  '/models/character2.glb': { scale: 0.0125, height: 1.35, col: 1.4 },
-  '/models/character3.glb': { scale: 0.0120, height: 1.7, col: 1.7 },
-  '/models/character4.glb': { scale: 0.0110, height: 1.4, col: 1.5 },
-  '/models/character5.glb': { scale: 0.0100, height: 1.6, col: 1.6 },
-  '/models/character6.glb': { scale: 0.0125, height: 1.4, col: 1.5 }
+  '/models/character1.glb': { scale: 2.1, height: 0.15, col: 1.1 },
+  '/models/character2.glb': { scale: 2.1, height: 0.15, col: 1.1 },
+  '/models/character3.glb': { scale: 2.1, height: 0.15, col: 1.1 },
+  '/models/character4.glb': { scale: 2, height: 0.15, col: 1.1 },
+  '/models/character5.glb': { scale: 2, height: 0.15, col: 1.1 },
+  '/models/character6.glb': { scale: 2, height: 0.15, col: 1.1 }
 };
 
 // 상수 정의
