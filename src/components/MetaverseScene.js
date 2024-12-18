@@ -16,42 +16,53 @@ import ChatInterface from './user/ChatInterface';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { getChatting } from '../state/chatState';
 import Swal from 'sweetalert2';
+import { useFrame } from '@react-three/fiber';
 
 // 닉네임 텍스트 컴포넌트
 const NicknameText = ({ nickname, position }) => {
- if (!nickname) return null;
- 
- return (
-   <group position={[position[0], position[1] + 2.5, position[2]]}>
-     <Billboard
-       follow={true}
-       lockX={true}
-       lockY={false}
-       lockZ={true}
-       position={[0, 0, 0]}
-     >
-       <mesh position={[0, 0, -0.01]}>
-         <planeGeometry args={[0.8, 0.15]} />
-         <meshBasicMaterial color="white" opacity={0.8} transparent />
-       </mesh>
-       
-       <mesh position={[0, 0, -0.02]}>
-         <planeGeometry args={[0.85, 0.20]} />
-         <meshBasicMaterial color="black" opacity={0.2} transparent />
-       </mesh>
+  const smoothedPosition = useRef([0, 0, 0]);
 
-       <Text
-         fontSize={0.1}
-         color="black"
-         anchorX="center"
-         anchorY="middle"
-         padding={0.05}
-       >
-         {nickname}
-       </Text>
-     </Billboard>
-   </group>
- );
+  useFrame(() => {
+    if (!nickname) return;
+    smoothedPosition.current = smoothedPosition.current.map((coord, i) => {
+      const target = i === 1 ? position[i] + 2.5 : position[i];
+      return coord + (target - coord) * 0.1;
+    });
+  });
+
+  if (!nickname) return null;
+
+  return (
+    <group position={smoothedPosition.current}>
+      <Billboard
+        follow={true}
+        lockX={true}
+        lockY={false}
+        lockZ={true}
+        position={[0, 0, 0]}
+      >
+        <mesh position={[0, 0, -0.01]}>
+          <planeGeometry args={[0.8, 0.15]} />
+          <meshBasicMaterial color="white" opacity={0.8} transparent />
+        </mesh>
+        
+        <mesh position={[0, 0, -0.02]}>
+          <planeGeometry args={[0.85, 0.20]} />
+          <meshBasicMaterial color="black" opacity={0.2} transparent />
+        </mesh>
+
+        <Text
+          fontSize={0.1}
+          color="black"
+          anchorX="center"
+          anchorY="middle"
+          padding={0.05}
+        >
+          {nickname}
+        </Text>
+      </Billboard>
+    </group>
+  );
 };
 
 export const MetaverseScene = () => {

@@ -236,28 +236,28 @@ export const Character = ({ position, setPosition, onAnimationChange, modelPath 
     }
 
     // 발차기 처리
-    if (movement.kick && canKick && rigidBodyRef.current) {
-      const worldPosition = rigidBodyRef.current.translation();
+    // if (movement.kick && canKick && rigidBodyRef.current) {
+    //   const worldPosition = rigidBodyRef.current.translation();
       
-      for (let i = 0; i < world.bodies.size; i++) {
-        const body = world.bodies.get(i);
-        if (body.userData?.type === 'soccer-ball') {
-          const ballPos = body.translation();
-          const dx = ballPos.x - worldPosition.x;
-          const dz = ballPos.z - worldPosition.z;
-          const distance = Math.sqrt(dx * dx + dz * dz);
+    //   for (let i = 0; i < world.bodies.size; i++) {
+    //     const body = world.bodies.get(i);
+    //     if (body.userData?.type === 'soccer-ball') {
+    //       const ballPos = body.translation();
+    //       const dx = ballPos.x - worldPosition.x;
+    //       const dz = ballPos.z - worldPosition.z;
+    //       const distance = Math.sqrt(dx * dx + dz * dz);
           
-          if (distance < MOVEMENT_CONFIG.kickRange) {
-            const angle = group.current.rotation.y;
-            body.applyImpulse({
-              x: -Math.sin(angle) * MOVEMENT_CONFIG.kickForce,
-              y: MOVEMENT_CONFIG.kickForce * 0.3,
-              z: -Math.cos(angle) * MOVEMENT_CONFIG.kickForce
-            });
-          }
-        }
-      }
-    }
+    //       if (distance < MOVEMENT_CONFIG.kickRange) {
+    //         const angle = group.current.rotation.y;
+    //         body.applyImpulse({
+    //           x: -Math.sin(angle) * MOVEMENT_CONFIG.kickForce,
+    //           y: MOVEMENT_CONFIG.kickForce * 0.3,
+    //           z: -Math.cos(angle) * MOVEMENT_CONFIG.kickForce
+    //         });
+    //       }
+    //     }
+    //   }
+    // }
 
     // 점프 처리
     if (movement.jump && canJump && Math.abs(currentVel.y) < 0.1) {

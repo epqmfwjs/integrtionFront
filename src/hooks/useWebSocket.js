@@ -343,6 +343,14 @@ export const useWebSocket = ({
                 try {
                   const receiveTime = Date.now();
                   const parsedData = parseTransportData(JSON.parse(message.body));
+
+                  // if (parsedData) {
+                  //   console.log('Position Update Received:', {
+                  //     time: new Date(receiveTime).toISOString(),
+                  //     playerCount: Object.keys(parsedData).length,
+                  //     data: parsedData
+                  //   });
+                  // }
                   
                   setOtherPlayers(prev => {
                     const newPlayers = {};
@@ -360,15 +368,12 @@ export const useWebSocket = ({
               
                       // 위치 보간 처리 개선
                       const interpolatedPosition = prevPlayer 
-                        ? playerData.position.map((target, i) => {
-                            const current = prevPlayer.position[i];
-                            const diff = target - current;
-                            // 큰 변화가 있을 경우 즉시 이동
-                            if (Math.abs(diff) > 5) return target;
-                            // 부드러운 보간 처리
-                            return current + (diff * PREDICTION_CONFIG.positionSmoothing);
-                          })
-                        : playerData.position;
+                      ? playerData.position.map((target, i) => {
+                          const current = prevPlayer.position[i];
+                          const diff = target - current;
+                          return current + (diff * PREDICTION_CONFIG.positionSmoothing);
+                        })
+                      : playerData.position;
               
                       // 회전 보간 처리
                       let interpolatedRotation = playerData.rotation;
@@ -395,7 +400,7 @@ export const useWebSocket = ({
                         modelPath: playerData.modelPath,
                         characterId: playerData.characterId,
                         currentAnimation: currentAnimation,
-                        velocity: hasMovement ? [1, 0, 1] : [0, 0, 0]  // 움직임 상태 반영
+                        velocity: hasMovement ? [1, 0, 1] : [0, 0, 0]
                       };
               
                       lastPositionsRef.current[nickname] = interpolatedPosition;
